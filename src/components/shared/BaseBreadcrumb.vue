@@ -39,8 +39,8 @@ const props = defineProps({
                     <template v-slot:title="{ item }">
                         <v-chip
                             size="small"
-                            class="rounded-sm"
-                            color="primary"
+                            class="rounded-sm ml-2"
+                            color="danger"
                             >{{ item.text }}</v-chip
                         >
                     </template>

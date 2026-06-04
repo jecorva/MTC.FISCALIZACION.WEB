@@ -17,8 +17,12 @@ import LogoIconSide from '@/layouts/full/logo/LogoIconSide.vue';
                 <div class="d-flex justify-center align-center h-100">
                     <div class="mt-xl-0 mt-5 auth-card px-6">
                         <LogoIcon />
-                        <h2 class="text-h3 mt-3 heading">SIGEPRE</h2>
-                        <div class="mb-6">Iniciar Sesión</div>
+                        <!-- <h2 class="text-h3 mt-3 heading">SIGEPRE</h2> -->
+                        <div
+                            class="mt-5 mb-2 h3 text-poppins font-weight-medium text-muted"
+                        >
+                            Iniciar Sesión
+                        </div>
                         <LoginForm />
                         <!-- <p class="d-flex align-center justify-center textSecondary mt-6 font-weight-medium">
                             New to MatDash?
@@ -37,9 +41,13 @@ import LogoIconSide from '@/layouts/full/logo/LogoIconSide.vue';
                 cols="12"
                 lg="7"
                 xl="8"
-                class="d-lg-flex d-none align-center justify-center authentication bg-darkgray position-relative"
+                style="background: #bf0909"
+                class="d-lg-flex d-none align-center justify-center authentication position-relative"
             >
-                <div class="circle-top"></div>
+                <div
+                    class="circle-top"
+                    style="border-color: #f2f2f2"
+                ></div>
                 <div>
                     <LogoIconSide class="circle-bottom" />
                 </div>
@@ -52,15 +60,16 @@ import LogoIconSide from '@/layouts/full/logo/LogoIconSide.vue';
                             lg="7"
                         >
                             <h1 class="text-h1 text-white lh-normal">
-                                Bienvenido a
+                                Bienvenido al
                                 <br />
-                                SIGEPRE
                             </h1>
                             <p
                                 class="text-h6 text-white opacity-80 font-weight-regular mt-4 lh-md"
                             >
-                                Sistema web de gestión y seguimiento de<br />
-                                expedientes de pago y control presupuestal.
+                                Sistema de Control y Gestión de las Actas
+                                de Fiscalización<br />
+                                del área Unidad de Fiscalización de la
+                                DRTCP.
                             </p>
                             <!-- <v-btn to="/" size="large" color="primary" class="mt-5"> Learn More </v-btn> -->
                         </v-col>

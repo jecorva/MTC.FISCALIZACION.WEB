@@ -148,10 +148,9 @@ onMounted(() => initialize());
         <v-col cols="12">
             <UiParentCard title="TABLA DE ROLES">
                 <v-alert
-                    border="start"
-                    variant="tonal"
-                    class="border border-primary"
-                    color="primary"
+                    variant="flat"
+                    class=""
+                    color="info"
                 >
                     <template v-slot:prepend>
                         <Icon

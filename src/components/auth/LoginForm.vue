@@ -43,9 +43,10 @@ async function validate() {
         const code = error?.response?.data?.code;
 
         const messages: Record<string, string> = {
-            USER_NOT_FOUND:   'El usuario ingresado no existe',
+            USER_NOT_FOUND: 'El usuario ingresado no existe',
             INVALID_PASSWORD: 'La contraseña es incorrecta',
-            USER_BLOCKED:     'Tu cuenta está desactivada, comuníquese con el administrador',
+            USER_BLOCKED:
+                'Tu cuenta está desactivada, comuníquese con el administrador'
         };
 
         apiError.value = messages[code] || 'Error al iniciar sesión';
@@ -86,7 +87,8 @@ async function validate() {
             type="button"
             size="large"
             :loading="isSubmitting"
-            color="primary"
+            color="error"
+            style="background: #bf0909 !important"
             block
             flat
             class="mt-4"
@@ -95,13 +97,20 @@ async function validate() {
             Ingresar
         </v-btn>
 
-        <div v-if="apiError" class="mt-2">
+        <div
+            v-if="apiError"
+            class="mt-2"
+        >
             <v-alert
                 :type="apiError === 'complete_fields' ? 'info' : 'error'"
                 variant="tonal"
                 density="compact"
             >
-                {{ apiError === 'complete_fields' ? 'Por favor complete todos los campos' : apiError }}
+                {{
+                    apiError === 'complete_fields'
+                        ? 'Por favor complete todos los campos'
+                        : apiError
+                }}
             </v-alert>
         </div>
     </div>
@@ -110,7 +119,7 @@ async function validate() {
         color="success"
         timeout="3000"
         location="top right"
-        >
+    >
         <v-icon class="mr-2">mdi-check-circle</v-icon>
         {{ snackbarMsg }}
     </v-snackbar>

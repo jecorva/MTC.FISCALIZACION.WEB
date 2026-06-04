@@ -9,6 +9,9 @@ export type ThemeTypes = {
         success?: string;
         warning?: string;
         error?: string;
+        danger?: string;
+        bgRedMTC?: string;
+        bgGrayMTC?: string;
         lightprimary?: string;
         lightsecondary?: string;
         lightsuccess?: string;
@@ -25,7 +28,7 @@ export type ThemeTypes = {
         grey100?: string;
         grey200?: string;
         darkgray?: string;
-        light?:string;
-        muted?:string;
+        light?: string;
+        muted?: string;
     };
 };
