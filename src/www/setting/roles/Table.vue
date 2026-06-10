@@ -26,7 +26,7 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 const page = ref({ title: 'Configuración | Roles' });
 const breadcrumbs = ref([
     {
-        text: 'Roles',
+        title: 'Roles',
         disabled: true,
         href: '#'
     }

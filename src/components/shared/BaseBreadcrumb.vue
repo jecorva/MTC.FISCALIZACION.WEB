@@ -16,44 +16,73 @@ const props = defineProps({
         <div class="px-6 py-4">
             <div class="d-flex justify-space-between align-center">
                 <h5 class="text-h5 text-muted">{{ title }}</h5>
-                <v-breadcrumbs
-                    :items="breadcrumbs"
-                    class="pa-0"
+
+                <div
+                    class="d-flex align-center text-raleway"
+                    style="gap: 6px"
                 >
-                    <template v-slot:prepend>
+                    <router-link
+                        to="/"
+                        style="
+                            color: inherit;
+                            display: flex;
+                            align-items: center;
+                        "
+                    >
+                        <Icon
+                            icon="solar:home-2-line-duotone"
+                            height="18"
+                        />
+                    </router-link>
+
+                    <template
+                        v-for="(item, index) in breadcrumbs"
+                        :key="index"
+                    >
+                        <Icon
+                            icon="solar:alt-arrow-right-line-duotone"
+                            height="14"
+                            style="color: #9e9e9e"
+                        />
+
                         <router-link
-                            to="/"
-                            class="textSecondary lh-0"
+                            v-if="!item.disabled"
+                            :to="item.href"
+                            class="bc-link"
                         >
-                            <Icon
-                                icon="solar:home-2-line-duotone"
-                                height="20"
-                            />
+                            {{ item.title }}
                         </router-link>
-                    </template>
-                    <template v-slot:divider>
-                        <div
-                            class="d-flex align-center textSecondary"
-                        ></div>
-                    </template>
-                    <template v-slot:title="{ item }">
-                        <v-chip
-                            size="small"
-                            class="rounded-sm ml-2"
-                            color="danger"
-                            >{{ item.text }}</v-chip
+
+                        <span
+                            v-else
+                            style="
+                                font-size: 13px;
+                                font-weight: 600;
+                                background: #58595b;
+                                color: white;
+                                padding: 3px 10px;
+                                border-radius: 4px;
+                            "
                         >
+                            {{ item.title }}
+                        </span>
                     </template>
-                </v-breadcrumbs>
+                </div>
             </div>
         </div>
     </v-card>
 </template>
 
-<style lang="scss">
-.page-breadcrumb {
-    .v-toolbar {
-        background: transparent;
-    }
+<style scoped>
+.bc-link {
+    font-size: 14px;
+    color: #9e9e9e;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.bc-link:hover {
+    color: #58595b;
+    /* text-decoration: underline; */
 }
 </style>

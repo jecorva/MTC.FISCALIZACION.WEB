@@ -42,7 +42,12 @@ const isEditMode = computed(() => !!route.params.Id);
 const editedId = computed(() => route.params.Id as string);
 const breadcrumbs = computed(() => [
     {
-        text: isEditMode.value ? 'Editar' : 'Nuevo',
+        title: 'Usuarios',
+        disabled: false,
+        href: '/configuracion/usuarios'
+    },
+    {
+        title: isEditMode.value ? 'Editar' : 'Nuevo',
         disabled: true,
         href: '#'
     }
@@ -319,13 +324,13 @@ onMounted(() => initialize());
                 <template v-slot:action>
                     <div class="d-flex gap-2">
                         <v-btn
-                            variant="outlined"
+                            variant="flat"
                             color="light"
                             class="border text-muted text-14"
                             @click="$router.go(-1)"
                         >
                             <Icon
-                                icon="solar:arrow-left-broken"
+                                icon="solar:double-alt-arrow-left-outline"
                                 width="20"
                                 class="mr-1"
                             />

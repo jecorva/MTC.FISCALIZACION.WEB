@@ -22,8 +22,12 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 // |<-- BREADCRUMB --|
 const page = ref({ title: 'Configuración | Usuarios | Permisos' });
 const breadcrumbs = ref([
-    { text: 'Usuarios', disabled: false, href: '/configuracion/usuarios' },
-    { text: 'Permisos', disabled: true, href: '#' }
+    {
+        title: 'Usuarios',
+        disabled: false,
+        href: '/configuracion/usuarios'
+    },
+    { title: 'Permisos', disabled: true, href: '#' }
 ]);
 
 const route = useRoute();
@@ -153,7 +157,7 @@ onMounted(() => loadTree());
                             @click="router.push('/configuracion/usuarios')"
                         >
                             <Icon
-                                icon="solar:arrow-left-broken"
+                                icon="solar:double-alt-arrow-left-outline"
                                 width="20"
                                 class="mr-1"
                             />

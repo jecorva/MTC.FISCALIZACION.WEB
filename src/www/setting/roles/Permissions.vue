@@ -22,8 +22,8 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 // |<-- BREADCRUMB --|
 const page = ref({ title: 'Configuración | Roles | Permisos' });
 const breadcrumbs = ref([
-    { text: 'Roles', disabled: false, href: '/configuracion/roles' },
-    { text: 'Permisos', disabled: true, href: '#' }
+    { title: 'Roles', disabled: false, href: '/configuracion/roles' },
+    { title: 'Permisos', disabled: true, href: '#' }
 ]);
 
 const route = useRoute();
@@ -154,9 +154,8 @@ onMounted(() => loadTree());
                             @click="router.push('/configuracion/roles')"
                         >
                             <Icon
-                                icon="solar:arrow-left-broken"
+                                icon="solar:double-alt-arrow-left-outline"
                                 width="20"
-                                class="mr-1"
                             />
                             Atrás
                         </v-btn>
