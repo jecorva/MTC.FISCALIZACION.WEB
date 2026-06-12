@@ -23,8 +23,8 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 const page = ref({
     title: computed(() =>
         isEditMode.value
-            ? 'Configuración | Usuarios | Editar'
-            : 'Configuración | Usuarios | Nuevo'
+            ? 'Administrador | Usuarios | Editar'
+            : 'Administrador | Usuarios | Nuevo'
     )
 });
 ///<-----------------------------| *** Code Basic *** |----------------------------->///
@@ -44,7 +44,7 @@ const breadcrumbs = computed(() => [
     {
         title: 'Usuarios',
         disabled: false,
-        href: '/configuracion/usuarios'
+        href: '/admin/usuarios'
     },
     {
         title: isEditMode.value ? 'Editar' : 'Nuevo',

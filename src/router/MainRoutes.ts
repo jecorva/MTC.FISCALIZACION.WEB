@@ -11,33 +11,33 @@ const MainRoutes = {
         ///|-- ROLES --|
         {
             name: 'Roles',
-            path: 'configuracion/roles',
+            path: 'admin/roles',
             component: () => import('@/www/setting/roles/Table.vue')
         },
         {
             name: 'RolesPermissions',
-            path: 'configuracion/roles/permisos/:id', // ← /dashboard/roles/permisos/5
+            path: 'admin/roles/permisos/:id', // ← /dashboard/roles/permisos/5
             component: () => import('@/www/setting/roles/Permissions.vue')
         },
         ///|-- USERS --|
         {
             name: 'Users',
-            path: 'configuracion/usuarios',
+            path: 'admin/usuarios',
             component: () => import('@/www/setting/users/Index.vue')
         },
         {
             name: 'UserForm',
-            path: 'configuracion/usuarios/nuevo',
+            path: 'admin/usuarios/nuevo',
             component: () => import('@/www/setting/users/Form.vue')
         },
         {
             name: 'UserFormEdit',
-            path: 'configuracion/usuarios/editar/:Id',
+            path: 'admin/usuarios/editar/:Id',
             component: () => import('@/www/setting/users/Form.vue')
         },
         {
             name: 'UserPermissions',
-            path: 'configuracion/usuarios/permisos/:Id',
+            path: 'admin/usuarios/permisos/:Id',
             component: () => import('@/www/setting/users/Permissions.vue')
         },
         {
@@ -54,13 +54,13 @@ const MainRoutes = {
         ///|-- TERMS --|
         {
             name: 'Terms',
-            path: 'configuracion/periodos',
+            path: 'admin/periodos',
             component: () => import('@/www/setting/term/Index.vue')
         },
         ///|-- TYPEEXPEDIENTS --|
         {
             name: 'TypeExpedients',
-            path: 'configuracion/tipo-expedientes',
+            path: 'admin/tipo-expedientes',
             component: () => import('@/www/setting/type/Index.vue')
         }
     ]

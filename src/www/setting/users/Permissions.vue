@@ -20,12 +20,12 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 };
 
 // |<-- BREADCRUMB --|
-const page = ref({ title: 'Configuración | Usuarios | Permisos' });
+const page = ref({ title: 'Administrador | Usuarios | Permisos' });
 const breadcrumbs = ref([
     {
         title: 'Usuarios',
         disabled: false,
-        href: '/configuracion/usuarios'
+        href: '/admin/usuarios'
     },
     { title: 'Permisos', disabled: true, href: '#' }
 ]);
@@ -154,7 +154,7 @@ onMounted(() => loadTree());
                             variant="flat"
                             color="light"
                             class="border text-muted text-14"
-                            @click="router.push('/configuracion/usuarios')"
+                            @click="router.push('/admin/usuarios')"
                         >
                             <Icon
                                 icon="solar:double-alt-arrow-left-outline"
@@ -501,11 +501,11 @@ onMounted(() => loadTree());
                 <v-divider class="my-4" />
 
                 <div class="d-flex justify-end gap-2">
-                    <v-btn
+                    <!-- <v-btn
                         variant="flat"
                         color="error"
                         class="text-14"
-                        @click="router.push('/configuracion/usuarios')"
+                        @click="router.push('/admin/usuarios')"
                     >
                         <Icon
                             icon="solar:double-alt-arrow-left-bold-duotone"
@@ -513,7 +513,7 @@ onMounted(() => loadTree());
                             class="mr-1"
                         />
                         Cancelar
-                    </v-btn>
+                    </v-btn> -->
                     <v-btn
                         color="primary"
                         variant="elevated"
@@ -526,7 +526,7 @@ onMounted(() => loadTree());
                             width="20"
                             class="mr-1"
                         />
-                        Guardar
+                        Asignar
                     </v-btn>
                 </div>
             </UiParentCard>

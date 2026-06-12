@@ -21,7 +21,7 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 };
 
 // |<-- BREADCRUMB --|
-const page = ref({ title: 'Configuración | Usuarios' });
+const page = ref({ title: 'Administrador | Usuarios' });
 const breadcrumbs = ref([
     {
         title: 'Usuarios',

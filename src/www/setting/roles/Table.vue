@@ -23,7 +23,7 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 // |<-- SNACKBAR --|
 
 // |<-- BREADCRUMB --|
-const page = ref({ title: 'Configuración | Roles' });
+const page = ref({ title: 'Administrador | Roles' });
 const breadcrumbs = ref([
     {
         title: 'Roles',
