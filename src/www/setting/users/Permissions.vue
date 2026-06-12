@@ -193,7 +193,6 @@ onMounted(() => loadTree());
                                 <Icon
                                     icon="solar:user-circle-bold-duotone"
                                     width="30"
-                                    class="text-primary"
                                 />
                             </template>
                             <div
@@ -212,7 +211,7 @@ onMounted(() => loadTree());
                         <v-alert
                             border="start"
                             variant="tonal"
-                            color="warning"
+                            color="info"
                             class="mb-4"
                         >
                             <template v-slot:prepend>
@@ -222,14 +221,14 @@ onMounted(() => loadTree());
                                 />
                             </template>
                             <div
-                                class="h5 font-weight-bold mb-1 text-poppins text-muted"
+                                class="h5 font-weight-bold mb-1 text-poppins"
                             >
                                 ADVERTENCIA
                             </div>
-                            <div class="text-body text-muted text-justify">
+                            <div class="text-body text-justify">
                                 Los permisos asignados directamente
-                                complementan (no reemplazan) los permisos
-                                del rol del usuario.
+                                asignados, complementan (no reemplazan) los
+                                permisos del rol del usuario.
                             </div>
                         </v-alert>
 
@@ -340,7 +339,7 @@ onMounted(() => loadTree());
                                                             : 'solar:alt-arrow-right-bold'
                                                     "
                                                     width="14"
-                                                    class="mr-1 text-medium-emphasis"
+                                                    class="mr-1 text-primary"
                                                 />
                                                 <span
                                                     class="text-body-3 font-weight-medium"
@@ -397,12 +396,12 @@ onMounted(() => loadTree());
                                                     />
                                                     <span
                                                         :class="[
-                                                            'text-body-2',
+                                                            'text-body-2 text-muted',
                                                             perm.inherited
                                                                 ? 'text-medium-emphasis'
                                                                 : perm.granted
                                                                   ? 'text-success font-weight-medium'
-                                                                  : ''
+                                                                  : 'text-bgGrayMTC'
                                                         ]"
                                                     >
                                                         {{
@@ -418,12 +417,12 @@ onMounted(() => loadTree());
                                                         size="x-small"
                                                         color="muted"
                                                         variant="tonal"
-                                                        class="ml-2 text-poppins font-weight-medium"
+                                                        class="ml-2 text-poppins font-weight-semibold"
                                                         style="
                                                             letter-spacing: 0.5px;
                                                         "
                                                     >
-                                                        ROL
+                                                        BLOQUEADO
                                                     </v-chip>
                                                 </div>
                                             </div>
@@ -465,7 +464,7 @@ onMounted(() => loadTree());
                                             />
                                             <span
                                                 :class="[
-                                                    'text-body-2',
+                                                    'text-body-2 text-muted',
                                                     child.inherited
                                                         ? 'text-medium-emphasis'
                                                         : child.granted
@@ -484,12 +483,12 @@ onMounted(() => loadTree());
                                                 size="x-small"
                                                 color="muted"
                                                 variant="tonal"
-                                                class="ml-2 text-poppins font-weight-medium"
+                                                class="ml-2 text-poppins font-weight-semibold"
                                                 style="
                                                     letter-spacing: 0.5px;
                                                 "
                                             >
-                                                ROL
+                                                BLOQUEADO
                                             </v-chip>
                                         </div>
                                     </template>

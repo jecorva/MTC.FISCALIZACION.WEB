@@ -24,7 +24,7 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 const page = ref({ title: 'Dashboard' });
 const breadcrumbs = ref([
     {
-        text: 'Inicio',
+        title: 'Inicio',
         disabled: true,
         href: '#'
     }

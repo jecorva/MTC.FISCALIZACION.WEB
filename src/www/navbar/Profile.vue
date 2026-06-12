@@ -20,7 +20,7 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 // |<-- BREADCRUMB --|
 const page = ref({ title: 'Mi Perfil' });
 const breadcrumbs = ref([
-    { text: 'Mi Perfil', disabled: true, href: '#' }
+    { title: 'Mi Perfil', disabled: true, href: '#' }
 ]);
 
 // |<-- ESTADO --|

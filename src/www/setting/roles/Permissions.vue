@@ -195,7 +195,7 @@ onMounted(() => loadTree());
                             <div
                                 class="h5 text-poppins font-weight-bold mb-1"
                             >
-                                {{ roleName || '—' }}
+                                Permisos [{{ roleName || '—' }}]
                             </div>
                             <div class="text-body text-justify">
                                 Desglose el árbol y seleccione los permisos
@@ -206,7 +206,7 @@ onMounted(() => loadTree());
                         <!-- Advertencia -->
                         <v-alert
                             border="start"
-                            variant="tonal"
+                            variant="flat"
                             color="warning"
                             class="mb-4"
                         >
@@ -214,14 +214,15 @@ onMounted(() => loadTree());
                                 <Icon
                                     icon="solar:danger-triangle-bold-duotone"
                                     width="30"
+                                    style="color: black"
                                 />
                             </template>
                             <div
-                                class="h5 font-weight-bold mb-1 text-poppins text-muted"
+                                class="h5 font-weight-bold mb-1 text-poppins"
                             >
                                 ADVERTENCIA
                             </div>
-                            <div class="text-body text-muted text-justify">
+                            <div class="text-body text-justify">
                                 Tenga cuidado al asignar permisos a los
                                 roles, ya que esto afecta directamente a
                                 todos los usuarios que posean este rol.
@@ -325,7 +326,7 @@ onMounted(() => loadTree());
                                                             : 'solar:alt-arrow-right-bold'
                                                     "
                                                     width="14"
-                                                    class="mr-1 text-medium-emphasis"
+                                                    class="mr-1 text-primary"
                                                 />
                                                 <span
                                                     class="text-body-3 font-weight-medium"
