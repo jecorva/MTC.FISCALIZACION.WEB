@@ -21,10 +21,10 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
 };
 
 // |<-- BREADCRUMB --|
-const page = ref({ title: 'Dashboard' });
+const page = ref({ title: 'Administrador | Vehículos' });
 const breadcrumbs = ref([
     {
-        text: 'Inicio',
+        title: 'Vehículos',
         disabled: true,
         href: '#'
     }

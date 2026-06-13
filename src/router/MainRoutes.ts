@@ -45,6 +45,18 @@ const MainRoutes = {
             path: 'profile',
             component: () => import('@/www/navbar/Profile.vue')
         },
+        ///|-- DRIVERS --|
+        {
+            name: 'Drivers',
+            path: 'admin/conductores',
+            component: () => import('@/www/setting/driver/Index.vue')
+        },
+        ///|-- VEHICLES --|
+        {
+            name: 'Vehicles',
+            path: 'admin/vehiculos',
+            component: () => import('@/www/setting/vehicle/Index.vue')
+        },
         ///|-- DEPENDENCIES --|
         {
             name: 'Dependecy',
@@ -57,11 +69,16 @@ const MainRoutes = {
             path: 'admin/periodos',
             component: () => import('@/www/setting/term/Index.vue')
         },
-        ///|-- TYPEEXPEDIENTS --|
+        ///|-- INSPECTION --|
         {
-            name: 'TypeExpedients',
-            path: 'admin/tipo-expedientes',
-            component: () => import('@/www/setting/type/Index.vue')
+            name: 'Acts',
+            path: 'fiscalizador/actas',
+            component: () => import('@/www/inspector/acts/Index.vue')
+        },
+        {
+            name: 'RoutesInspections',
+            path: 'fiscalizador/rutas-inspecciones',
+            component: () => import('@/www/inspector/routes/Index.vue')
         }
     ]
 };
