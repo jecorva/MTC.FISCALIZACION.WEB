@@ -21,7 +21,7 @@ httpClient.interceptors.response.use(
         const url = error.config?.url;
 
         if (status === 401 && url !== '/login') {            
-            console.log('LOGIN CALLED');
+            // console.log('LOGIN CALLED');
         }
 
         // 422 siempre lo deja pasar al componente que lo manejará

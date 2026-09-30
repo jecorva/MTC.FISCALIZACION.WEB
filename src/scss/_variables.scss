@@ -10,7 +10,8 @@ $white: #fff !default;
 // cards
 $card-title-size: 18px !default;
 //$body-font-family: "Manrope", sans-serif !default;
-$body-font-family: 'Open Sans', sans-serif !default;
+// $body-font-family: 'Open Sans', sans-serif !default;
+$body-font-family: 'Source Sans Pro', sans-serif;
 $border-radius-root: 4px;
 $btn-letter-spacing: -1 !default;
 // Global Shadows
@@ -27,7 +28,7 @@ $heading-font-family: 'Raleway', sans-serif !default;
     $body-font-family: $body-font-family,
     //$heading-font-family: $body-font-family !default,
     $heading-font-family: $heading-font-family,
-    // 👉 Typography
+    // Typography
     $typography:
         (
             //36px
@@ -138,7 +139,7 @@ $heading-font-family: 'Raleway', sans-serif !default;
                 )
         )
         !default,
-    // 👉 Button
+    // Button
     $button-border-radius: 8px !default,
     $button-text-letter-spacing: 0 !default,
     $button-text-transform: capitalize,
@@ -149,14 +150,14 @@ $heading-font-family: 'Raleway', sans-serif !default;
     )
     !default,
 
-    // 👉 Tooltip
+    // Tooltip
     $tooltip-background-color: #212121 !default,
     $tooltip-text-color: rgb(var(--v-theme-on-primary)) !default,
     $tooltip-font-size: 0.6875rem !default,
     $tooltip-border-radius: 4px !default,
     $tooltip-padding: 3px 7px !default,
 
-    // 👉 Rounded
+    // Rounded
     $rounded:
         (
             0: 0,
@@ -169,7 +170,7 @@ $heading-font-family: 'Raleway', sans-serif !default;
             'circle': 50%
         ),
 
-    // 👉 Card
+    // Card
     $card-elevation: 10 !default,
     $card-title-line-height: 1.4 !default,
     $card-text-padding: 14px !default,

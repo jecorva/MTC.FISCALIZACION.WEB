@@ -33,6 +33,7 @@ const router = useRouter();
 const { can } = usePermissions();
 ///<-----------------------------| *** Code Basic *** |----------------------------->///
 import { userService } from '@/services/userService';
+import { getApiError } from '@/utils/apiError';
 
 const filtrable = ref('');
 const loading = ref(false);
@@ -95,7 +96,7 @@ const errConPasswordClear = () => {
 const titleDelete = computed(() =>
     ldgDelete.value
         ? 'Eliminando...'
-        : '¿Estás seguro que deseas eliminar este usuario?'
+        : '¿Desea eliminar este registro?'
 );
 
 const openChangePassword = (item) => {
@@ -137,27 +138,17 @@ const changePasswordSave = async () => {
         return;
     }
 
+    ldgChange.value = true;
     try {
-        ldgChange.value = true;
         await userService.changePassword(changeId.value, {
             Password: change.value.Password
         });
-        change.value = {
-            Password: '',
-            ConfirmPassword: ''
-        };
+        change.value = { Password: '', ConfirmPassword: '' };
         dlgPassword.value = false;
-        setTimeout(() => {}, 500);
         showSnackbar('Contraseña cambiada.', 'success');
     } catch (error) {
-        const code = error?.response?.data?.code;
-        const messages: Record<string, string> = {
-            CHANGE_NOT_FOUND: error?.response?.data?.message
-        };
-        errAlert.value = {
-            active: true,
-            message: messages[code] ?? 'Error en el servidor'
-        };
+        const { message } = getApiError(error);
+        errAlert.value = { active: true, message };
     } finally {
         ldgChange.value = false;
     }
@@ -167,15 +158,11 @@ const deleteItemConfirm = async () => {
     ldgDelete.value = true;
     try {
         await userService.delete(changeId.value);
-        initialize();
-        setTimeout(() => {}, 1000);
         showSnackbar('Registro eliminado.', 'success');
+        await initialize();
     } catch (error) {
-        const code = error?.response?.data?.code;
-        const messages: Record<string, string> = {
-            DELETE_NOT_FOUND: error?.response?.data?.message
-        };
-        showSnackbar(messages[code] ?? 'Error en el servidor', 'error');
+        const { message } = getApiError(error);
+        showSnackbar(message, 'error');
     } finally {
         ldgDelete.value = false;
         dlgDelete.value = false;
@@ -202,9 +189,8 @@ const initialize = async () => {
     try {
         users.value = await userService.getAll();
     } catch (error) {
-        //const code = error?.response?.data?.code;
-        const serverMessage = error?.response?.data?.message;
-        showSnackbar(serverMessage, 'error');
+        const { message } = getApiError(error);
+        showSnackbar(message, 'error');
         users.value = [];
     } finally {
         loading.value = false;
@@ -217,10 +203,14 @@ onMounted(() => initialize());
     <BaseBreadcrumb
         :title="page.title"
         :breadcrumbs="breadcrumbs"
+        class="elevation-1"
     ></BaseBreadcrumb>
     <v-row>
         <v-col cols="12">
-            <UiParentCard title="GESTIÓN DE USUARIOS Y PERMISOS">
+            <UiParentCard 
+                title="Gestionar usuarios y permisos"
+                icon="solar:user-circle-linear"
+                class="elevation-1">
                 <v-data-table
                     class="border rounded datatabels mt-3"
                     density="compact"
@@ -229,7 +219,7 @@ onMounted(() => initialize());
                     :items="users"
                     :loading="loading"
                     :sort-by="[{ key: 'name', order: 'asc' }]"
-                    max-height="320"
+                    max-height="320"                    
                 >
                     <template v-slot:top>
                         <v-toolbar class="px-3 bg-white border-b">
@@ -291,9 +281,10 @@ onMounted(() => initialize());
                                     can(permissionsList.users.permission)
                                 "
                                 size="sm"
+                                rounded="sm"
                                 variant="flat"
                                 :color="
-                                    item.IsActive === 1 ? 'info' : 'gray'
+                                    item.IsActive === 1 ? 'secondary' : 'gray'
                                 "
                                 class="text-13 px-3"
                                 @click="
@@ -313,6 +304,7 @@ onMounted(() => initialize());
                                 v-if="can(permissionsList.users.update)"
                                 color="info"
                                 size="sm"
+                                rounded="sm"
                                 class="px-2 py-2"
                                 variant="flat"
                                 @click="editItem(item)"
@@ -330,9 +322,10 @@ onMounted(() => initialize());
                             <v-btn
                                 v-if="can(permissionsList.users.password)"
                                 :color="
-                                    item.IsActive === 1 ? 'info' : 'gray'
+                                    item.IsActive === 1 ? 'warning' : 'gray'
                                 "
                                 size="sm"
+                                rounded="sm"
                                 class="px-2 py-1"
                                 variant="flat"
                                 @click="
@@ -358,6 +351,7 @@ onMounted(() => initialize());
                                     item.IsActive === 1 ? 'error' : 'gray'
                                 "
                                 size="sm"
+                                rounded="sm"
                                 class="px-2 py-1"
                                 variant="flat"
                                 @click="
@@ -397,7 +391,7 @@ onMounted(() => initialize());
                 :disabled="ldgChange"
             >
                 <v-card-title
-                    class="text-muted py-4 d-flex align-center gap-2 text-poppins"
+                    class="pt-3 px-7 text-titleDialog bg-headerDialog font-weight-medium d-flex align-center gap-2 mb-0 jc-title"
                 >
                     <v-progress-circular
                         v-if="ldgChange"
@@ -409,12 +403,12 @@ onMounted(() => initialize());
                     <Icon
                         v-else
                         icon="material-symbols:lock-open"
-                        width="24"
-                        height="24"
+                        width="20"
+                        height="20"
                     />
                     CAMBIAR CONTRASEÑA
                 </v-card-title>
-                <v-card-text class="py-2">
+                <v-card-text class="pb-5">
                     <v-alert
                         type="error"
                         variant="flat"
@@ -479,31 +473,33 @@ onMounted(() => initialize());
                 <v-divider></v-divider>
                 <v-card-actions class="justify-end py-3 px-6">
                     <v-btn
-                        variant="flat"
-                        color="info"
+                        variant="tonal"
+                        color="muted"                        
+                        rounded="sm"
                         class="text-14 px-3"
                         @click="dlgPassword = false"
                     >
                         <Icon
                             class="mr-1"
                             icon="solar:round-double-alt-arrow-left-broken"
-                            width="22"
-                            height="22"
+                            width="18"
+                            height="18"
                         />
                         Cerrar
                     </v-btn>
                     <v-btn
                         variant="flat"
                         color="primary"
+                        rounded="sm"
                         class="text-14 px-3"
                         :loading="ldgChange"
                         type="submit"
                     >
                         <Icon
                             class="mr-1"
-                            icon="solar:diskette-broken"
-                            width="20"
-                            height="20"
+                            icon="solar:diskette-line-duotone"
+                            width="18"
+                            height="18"
                         />
                         Guardar
                     </v-btn>
@@ -522,17 +518,14 @@ onMounted(() => initialize());
     <!-- 3. Dialog eliminar usuario -->
     <v-dialog
         v-model="dlgDelete"
-        :max-width="ldgDelete ? 250 : 400"
+        :max-width="ldgDelete ? 150 : 300"
         :persistent="ldgDelete"
     >
-        <v-card>
-            <v-card-title class="text-h6 py-3 border-bottom bg-light">
-                Mensaje - Eliminar
-            </v-card-title>
-            <v-card-text class="text-center py-2">
+        <v-card>            
+            <v-card-text class="text-center py-2 mt-2">
                 <div>
                     <Icon
-                        class="text-error trash-animate"
+                        class="text-error"
                         icon="solar:trash-bin-minimalistic-bold-duotone"
                         width="50"
                         height="50"
@@ -555,7 +548,7 @@ onMounted(() => initialize());
                     :loading="ldgDelete"
                     @click="deleteItemConfirm"
                 >
-                    Eliminar
+                    Si, eliminar
                 </v-btn>
             </v-card-actions>
         </v-card>

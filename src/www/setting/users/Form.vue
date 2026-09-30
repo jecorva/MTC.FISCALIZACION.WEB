@@ -33,6 +33,7 @@ import { roleService } from '@/services/roleService';
 import { dependencyService } from '@/services/dependencyService';
 import { userService } from '@/services/userService';
 import { useRoute, useRouter } from 'vue-router';
+import { getApiError, ResponseCode } from '@/utils/apiError';
 
 const route = useRoute();
 const router = useRouter();
@@ -44,7 +45,7 @@ const breadcrumbs = computed(() => [
     {
         title: 'Usuarios',
         disabled: false,
-        href: '/admin/usuarios'
+        href: '/usuarios'
     },
     {
         title: isEditMode.value ? 'Editar' : 'Nuevo',
@@ -77,7 +78,7 @@ const formRef = ref();
 //<-| Loading |->
 const ldgRoles = ref(false);
 const ldgDependencies = ref(false);
-const ldgEdit = ref(false);
+const ldgEdit = ref(isEditMode.value);
 const ldgCreate = ref(false);
 
 //<-| Error Form |->
@@ -100,6 +101,7 @@ const listRoles = ref([]);
 const listDependencies = ref([]);
 
 const dlgQuestion = ref(false);
+const noError = () => ({ active: false, message: '' });
 
 const errNameClear = () => {
     errName.value = { active: false, message: '' };
@@ -189,22 +191,11 @@ const confirmQuestion = () => {
 const save = async () => {
     const { valid } = await formRef.value.validate();
     if (!valid) return;
-    errDocNumber.value = {
-        active: false,
-        message: ''
-    };
-    errUserName.value = {
-        active: false,
-        message: ''
-    };
-    errEmail.value = {
-        active: false,
-        message: ''
-    };
-    errAlert.value = {
-        active: false,
-        message: ''
-    };
+
+    errDocNumber.value = noError();
+    errUserName.value = noError();
+    errEmail.value = noError();
+    errAlert.value = noError();
 
     // Validar contraseñas solo en CREAR, o si escribió algo en editar
     const passwordFilled =
@@ -224,7 +215,7 @@ const save = async () => {
         ldgCreate.value = true;
 
         if (!isEditMode.value) {
-            //<-| CREAR |->
+            /** Boton: Crear Usuario */
             await userService.create({
                 ...formField.value,
                 Roles: roles.value,
@@ -234,7 +225,7 @@ const save = async () => {
             setTimeout(() => {}, 700);
             showSnackbar('Usuario creado.', 'success');
         } else {
-            //<-| EDITAR |->
+            /** Boton: Editar Usuario */
             await userService.update(editedId.value, {
                 ...formField.value,
                 Roles: roles.value,
@@ -244,38 +235,33 @@ const save = async () => {
             setTimeout(() => router.go(-1), 700);
         }
     } catch (error) {
-        const code = error?.response?.data?.code;
-        const messages: Record<string, string> = {
-            USER_DOCUMENTNUMBER_EXISTS: error?.response?.data?.message,
-            USERNAME_EXISTS: error?.response?.data?.message,
-            EMAIL_EXISTS: error?.response?.data?.message,
-            ERROR_USER_CREATED: error?.response?.data?.message,
-            ERROR_USER_UPDATED: error?.response?.data?.message
-        };
-        if (code == 'USER_DOCUMENTNUMBER_EXISTS') {
-            errDocNumber.value = {
-                active: true,
-                message: '* Documento ya existe.'
-            };
+        const { code, message } = getApiError(error);
+
+        switch (code) {
+            case ResponseCode.DocumentNumberError:
+                errDocNumber.value = {
+                    active: true,
+                    message: '* Documento ya existe.'
+                };
+                break;
+            case ResponseCode.NameError:
+                errUserName.value = {
+                    active: true,
+                    message: '* Usuario ya existe.'
+                };
+                break;
+            case ResponseCode.EmailError:
+                if (formField.value.ConfirmEmail == 0) {
+                    errEmail.value = {
+                        active: true,
+                        message: '* Email ya existe.'
+                    };
+                    dlgQuestion.value = true;
+                }
+                break;
+            default:
+                errAlert.value = { active: true, message };
         }
-        if (code == 'USERNAME_EXISTS') {
-            errUserName.value = {
-                active: true,
-                message: '* Usuario ya existe.'
-            };
-        }
-        if (code == 'EMAIL_EXISTS' && formField.value.ConfirmEmail == 0) {
-            errEmail.value = {
-                active: true,
-                message: '* Email ya existe.'
-            };
-            dlgQuestion.value = true;
-        }
-        errAlert.value = {
-            active: true,
-            message: messages[code]
-        };
-        // showSnackbar(messages[code] || 'Error en el servidor', 'error');
     } finally {
         ldgCreate.value = false;
     }
@@ -315,26 +301,28 @@ onMounted(() => initialize());
     <BaseBreadcrumb
         :title="page.title"
         :breadcrumbs="breadcrumbs"
+        class="elevation-1"
     ></BaseBreadcrumb>
     <v-row>
         <v-col cols="12">
             <UiParentCard
-                :title="isEditMode ? 'EDITAR USUARIO' : 'CREAR USUARIO'"
+                :title="isEditMode ? 'Editar Usuario' : 'Crear Usuario'"
+                icon="solar:user-circle-linear"
+                class="elevation-1"
             >
                 <template v-slot:action>
                     <div class="d-flex gap-2">
                         <v-btn
                             variant="flat"
-                            color="light"
-                            class="border text-muted text-14"
+                            size="small"
+                            rounded="sm"
+                            class="px-1 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border border-amber-200"
                             @click="$router.go(-1)"
                         >
                             <Icon
-                                icon="solar:double-alt-arrow-left-outline"
-                                width="20"
-                                class="mr-1"
+                                icon="solar:close-bold"
+                                width="18"
                             />
-                            Atras
                         </v-btn>
                     </div>
                 </template>
@@ -344,338 +332,25 @@ onMounted(() => initialize());
                     fast-fail
                     @submit.prevent="save"
                 >
-                    <v-col
-                        cols="12"
-                        class="px-0 py-0"
-                    >
-                        <v-alert
-                            type="error"
-                            variant="flat"
-                            closable
-                            close-label="Close Alert"
-                            class="mb-4"
-                            v-if="errAlert.active"
+                    <v-row>
+                        <v-col
+                            cols="12"
+                            class="pb-0"
                         >
-                            <div>
-                                {{ errAlert.message }}
-                            </div>
-                        </v-alert>
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        class="px-0 py-0"
-                    >
-                        <v-card variant="outlined">
-                            <v-card-item>
-                                <h5
-                                    class="text-h3 text-primary font-weight-bold"
-                                >
-                                    Datos Personales
-                                </h5>
+                            <div
+                                class="d-flex justify-space-between align-center"
+                                style="gap: 8px"
+                            >
                                 <div
-                                    class="text-subtitle-1 textSecondary mt-2"
+                                    class="text-muted js-title font-weight-medium h5 hidden-sm-and-down"
                                 >
                                     Para crear un nuevo usuario, completa
                                     todos los campos obligatorios (*)
                                 </div>
-                                <div class="mt-5">
-                                    <v-row>
-                                        <v-col
-                                            cols="12"
-                                            class="pb-1"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Nombre(s) *</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="formField.Name"
-                                                @update:modelValue="
-                                                    (val) =>
-                                                        (formField.Name =
-                                                            val.toUpperCase())
-                                                "
-                                                placeholder="Escribir"
-                                                :error="errName.active"
-                                                :error-messages="
-                                                    errName.message
-                                                "
-                                                @input="errNameClear"
-                                                :rules="[
-                                                    (v) =>
-                                                        !!v ||
-                                                        '* El nombre es requerido'
-                                                ]"
-                                                ref="nameFdRef"
-                                                :append-inner-icon="'mdi-account'"
-                                            >
-                                                <!-- <template
-                                                    v-slot:append-inner
-                                                >
-                                                    <Icon
-                                                        icon="solar:user-broken"
-                                                        width="22"
-                                                        height="22"
-                                                    />
-                                                </template> -->
-                                            </v-text-field>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Apellido Paterno
-                                                *</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="
-                                                    formField.PaternalSurname
-                                                "
-                                                @update:modelValue="
-                                                    (val) =>
-                                                        (formField.PaternalSurname =
-                                                            val.toUpperCase())
-                                                "
-                                                placeholder="Escribir"
-                                                :error="
-                                                    errPatSurname.active
-                                                "
-                                                :error-messages="
-                                                    errPatSurname.message
-                                                "
-                                                @input="errPatSurnameClear"
-                                                :rules="[
-                                                    (v) =>
-                                                        !!v ||
-                                                        '* Apellido paterno es requerido'
-                                                ]"
-                                                :append-inner-icon="'mdi-account'"
-                                            >
-                                                <!-- <template
-                                                    v-slot:append-inner
-                                                >
-                                                    <Icon
-                                                        icon="solar:user-broken"
-                                                        width="22"
-                                                        height="22"
-                                                    />
-                                                </template> -->
-                                            </v-text-field>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1 pt-0"
-                                            ><v-label
-                                                class="text-muted mb-1"
-                                                >Apellido Materno
-                                                *</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="
-                                                    formField.MaternalSurname
-                                                "
-                                                @update:modelValue="
-                                                    (val) =>
-                                                        (formField.MaternalSurname =
-                                                            val.toUpperCase())
-                                                "
-                                                placeholder="Escribir"
-                                                :error="
-                                                    errMatSurname.active
-                                                "
-                                                :error-messages="
-                                                    errMatSurname.message
-                                                "
-                                                @input="errMatSurnameClear"
-                                                :rules="[
-                                                    (v) =>
-                                                        !!v ||
-                                                        '* Apellido materno es requerido'
-                                                ]"
-                                                :append-inner-icon="'mdi-account'"
-                                                ><!-- <template
-                                                    v-slot:append-inner
-                                                >
-                                                    <Icon
-                                                        icon="solar:user-broken"
-                                                        width="22"
-                                                        height="22"
-                                                    /> </template
-                                            > --></v-text-field
-                                            >
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >DNI *</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="
-                                                    formField.DocumentNumber
-                                                "
-                                                v-maska="'########'"
-                                                :maxlength="8"
-                                                placeholder="Escribir"
-                                                :error="
-                                                    errDocNumber.active
-                                                "
-                                                :error-messages="
-                                                    errDocNumber.message
-                                                "
-                                                @input="errDocNumberClear"
-                                                :rules="[
-                                                    (v) =>
-                                                        !!v ||
-                                                        '* Campo obligatorio'
-                                                ]"
-                                                :append-inner-icon="'mdi-alert-circle'"
-                                                ><!-- <template
-                                                    v-slot:append-inner
-                                                >
-                                                    <Icon
-                                                        icon="solar:card-2-broken"
-                                                        width="22" /></template
-                                            > --></v-text-field
-                                            >
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Teléfono</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="formField.Phone"
-                                                placeholder="999 999 999"
-                                                v-maska="'### ### ###'"
-                                                :append-inner-icon="'mdi-phone'"
-                                                ><!-- <template
-                                                    v-slot:append-inner
-                                                >
-                                                    <Icon
-                                                        icon="solar:phone-rounded-broken"
-                                                        width="22"
-                                                    /> </template
-                                            > --></v-text-field
-                                            >
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-5 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Fecha Nacimiento</v-label
-                                            >
-                                            <v-text-field
-                                                variant="outlined"
-                                                hide-details
-                                                type="date"
-                                                v-model="
-                                                    formField.DateBirth
-                                                "
-                                            ></v-text-field>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-5 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Sexo</v-label
-                                            >
-                                            <v-radio-group
-                                                inline
-                                                class="ml-n3"
-                                                hide-details
-                                                v-model="formField.Sex"
-                                            >
-                                                <v-radio
-                                                    label="Masculino"
-                                                    color="primary"
-                                                    value="1"
-                                                ></v-radio>
-                                                <v-radio
-                                                    label="Femenino"
-                                                    color="primary"
-                                                    value="2"
-                                                ></v-radio>
-                                                <v-radio
-                                                    label="No especifica"
-                                                    color="primary"
-                                                    value="0"
-                                                ></v-radio>
-                                            </v-radio-group>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            class="pb-1 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Dirección</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="formField.Address"
-                                                placeholder="Escribir"
-                                            >
-                                                <template
-                                                    v-slot:append-inner
-                                                >
-                                                    <Icon
-                                                        icon="solar:map-point-broken"
-                                                        width="22"
-                                                    />
-                                                </template>
-                                            </v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </div>
-                            </v-card-item>
-                        </v-card>
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        class="px-0"
-                    >
-                        <v-card variant="outlined">
-                            <v-card-item>
                                 <div
-                                    class="d-flex align-center justify-space-between"
+                                    class="d-flex align-center"
+                                    style="gap: 8px"
                                 >
-                                    <h5
-                                        class="text-h3 text-primary font-weight-bold"
-                                    >
-                                        Datos Usuario
-                                        <v-chip
-                                            :color="
-                                                formField.IsActive
-                                                    ? 'success'
-                                                    : 'error'
-                                            "
-                                            size="small"
-                                            class="ml-2"
-                                        >
-                                            {{
-                                                formField.IsActive
-                                                    ? 'Activo'
-                                                    : 'Inactivo'
-                                            }}
-                                        </v-chip>
-                                    </h5>
                                     <v-switch
                                         v-model="formField.IsActive"
                                         hide-details
@@ -683,41 +358,463 @@ onMounted(() => initialize());
                                         inset
                                         :true-value="1"
                                         :false-value="0"
+                                        class="flex-grow-0"
                                     ></v-switch>
+                                    <!-- <span
+                                        class="text-subtitle-1 font-weight-medium"
+                                        :class="
+                                            formField.IsActive
+                                                ? 'text-success'
+                                                : 'text-error'
+                                        "
+                                    >
+                                        {{
+                                            formField.IsActive
+                                                ? 'Activo'
+                                                : 'Inactivo'
+                                        }}
+                                    </span> -->
                                 </div>
-                                <div class="text-subtitle-1 textSecondary">
-                                    Complete los campos obligatorios(*)
+                            </div>
+                        </v-col>
+                        <v-col
+                            cols="12"
+                            class="px-0 py-0"
+                        >
+                            <v-alert
+                                type="error"
+                                variant="flat"
+                                closable
+                                close-label="Close Alert"
+                                class="mb-4"
+                                v-if="errAlert.active"
+                            >
+                                <div>
+                                    {{ errAlert.message }}
                                 </div>
-                                <div class="mt-5">
-                                    <v-row>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1"
+                            </v-alert>
+                        </v-col>
+
+                        <v-col
+                            md="7"
+                            xl="7"
+                            sm="12"
+                        >
+                            <v-card variant="outlined">
+                                <v-overlay
+                                    :model-value="ldgEdit"
+                                    contained
+                                    class="align-center justify-center"
+                                    persistent
+                                    scrim="#d5d5d5"
+                                    :opacity="0.3"
+                                >
+                                    <v-progress-circular
+                                        indeterminate
+                                        color="muted"
+                                    />
+                                </v-overlay>
+                                <v-card-item>
+                                    <!-- <h5
+                                        class="text-h3 text-muted font-weight-bold mb-0 pb-0"
+                                    >
+                                        Datos Personales
+                                    </h5> -->
+
+                                    <div class="mt-1">
+                                        <v-row>
+                                            <v-col
+                                                cols="12"
+                                                class="pb-1"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Nombre(s) *</v-label
+                                                ><small
+                                                    v-if="isEditMode"
+                                                    class="text-muted"
+                                                >
+                                                    [ Solo lectura ]</small
+                                                >
+                                                <v-text-field
+                                                    :readonly="isEditMode"
+                                                    :class="
+                                                        isEditMode
+                                                            ? 'readonly-field'
+                                                            : ''
+                                                    "
+                                                    v-model="
+                                                        formField.Name
+                                                    "
+                                                    @update:modelValue="
+                                                        (val) =>
+                                                            (formField.Name =
+                                                                val.toUpperCase())
+                                                    "
+                                                    placeholder="Escribir"
+                                                    :error="errName.active"
+                                                    :error-messages="
+                                                        errName.message
+                                                    "
+                                                    @input="errNameClear"
+                                                    :rules="[
+                                                        (v) =>
+                                                            !!v ||
+                                                            '* El nombre es requerido'
+                                                    ]"
+                                                    ref="nameFdRef"
+                                                    :append-inner-icon="'mdi-account'"
+                                                >
+                                                    <!-- <template
+                                                    v-slot:append-inner
+                                                >
+                                                    <Icon
+                                                        icon="solar:user-broken"
+                                                        width="22"
+                                                        height="22"
+                                                    />
+                                                </template> -->
+                                                </v-text-field>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="6"
+                                                class="pb-1 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Apellido Paterno
+                                                    *</v-label
+                                                ><small
+                                                    v-if="isEditMode"
+                                                    class="text-muted"
+                                                >
+                                                    [ Solo lectura ]</small
+                                                >
+                                                <v-text-field
+                                                    :readonly="isEditMode"
+                                                    :class="
+                                                        isEditMode
+                                                            ? 'readonly-field'
+                                                            : ''
+                                                    "
+                                                    v-model="
+                                                        formField.PaternalSurname
+                                                    "
+                                                    @update:modelValue="
+                                                        (val) =>
+                                                            (formField.PaternalSurname =
+                                                                val.toUpperCase())
+                                                    "
+                                                    placeholder="Escribir"
+                                                    :error="
+                                                        errPatSurname.active
+                                                    "
+                                                    :error-messages="
+                                                        errPatSurname.message
+                                                    "
+                                                    @input="
+                                                        errPatSurnameClear
+                                                    "
+                                                    :rules="[
+                                                        (v) =>
+                                                            !!v ||
+                                                            '* Apellido paterno es requerido'
+                                                    ]"
+                                                    :append-inner-icon="'mdi-account'"
+                                                >
+                                                    <!-- <template
+                                                    v-slot:append-inner
+                                                >
+                                                    <Icon
+                                                        icon="solar:user-broken"
+                                                        width="22"
+                                                        height="22"
+                                                    />
+                                                </template> -->
+                                                </v-text-field>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="6"
+                                                class="pb-1 pt-0"
+                                                ><v-label
+                                                    class="text-muted mb-1"
+                                                    >Apellido Materno
+                                                    *</v-label
+                                                ><small
+                                                    v-if="isEditMode"
+                                                    class="text-muted"
+                                                >
+                                                    [ Solo lectura ]</small
+                                                >
+                                                <v-text-field
+                                                    :readonly="isEditMode"
+                                                    :class="
+                                                        isEditMode
+                                                            ? 'readonly-field'
+                                                            : ''
+                                                    "
+                                                    v-model="
+                                                        formField.MaternalSurname
+                                                    "
+                                                    @update:modelValue="
+                                                        (val) =>
+                                                            (formField.MaternalSurname =
+                                                                val.toUpperCase())
+                                                    "
+                                                    placeholder="Escribir"
+                                                    :error="
+                                                        errMatSurname.active
+                                                    "
+                                                    :error-messages="
+                                                        errMatSurname.message
+                                                    "
+                                                    @input="
+                                                        errMatSurnameClear
+                                                    "
+                                                    :rules="[
+                                                        (v) =>
+                                                            !!v ||
+                                                            '* Apellido materno es requerido'
+                                                    ]"
+                                                    :append-inner-icon="'mdi-account'"
+                                                    ><!-- <template
+                                                    v-slot:append-inner
+                                                >
+                                                    <Icon
+                                                        icon="solar:user-broken"
+                                                        width="22"
+                                                        height="22"
+                                                    /> </template
+                                            > --></v-text-field
+                                                >
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="6"
+                                                class="pb-1 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >DNI *</v-label
+                                                >
+                                                <v-text-field
+                                                    v-model="
+                                                        formField.DocumentNumber
+                                                    "
+                                                    v-maska="'########'"
+                                                    :maxlength="8"
+                                                    placeholder="Escribir"
+                                                    :error="
+                                                        errDocNumber.active
+                                                    "
+                                                    :error-messages="
+                                                        errDocNumber.message
+                                                    "
+                                                    @input="
+                                                        errDocNumberClear
+                                                    "
+                                                    :rules="[
+                                                        (v) =>
+                                                            !!v ||
+                                                            '* Campo obligatorio'
+                                                    ]"
+                                                    :append-inner-icon="'mdi-alert-circle'"
+                                                    ><!-- <template
+                                                    v-slot:append-inner
+                                                >
+                                                    <Icon
+                                                        icon="solar:card-2-broken"
+                                                        width="22" /></template
+                                            > --></v-text-field
+                                                >
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="6"
+                                                class="pb-1 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Teléfono</v-label
+                                                >
+                                                <v-text-field
+                                                    v-model="
+                                                        formField.Phone
+                                                    "
+                                                    placeholder="999 999 999"
+                                                    v-maska="'### ### ###'"
+                                                    :append-inner-icon="'mdi-phone'"
+                                                    ><!-- <template
+                                                    v-slot:append-inner
+                                                >
+                                                    <Icon
+                                                        icon="solar:phone-rounded-broken"
+                                                        width="22"
+                                                    /> </template
+                                            > --></v-text-field
+                                                >
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="5"
+                                                class="pb-5 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Fecha
+                                                    Nacimiento</v-label
+                                                >
+                                                <v-text-field
+                                                    variant="outlined"
+                                                    hide-details
+                                                    type="date"
+                                                    v-model="
+                                                        formField.DateBirth
+                                                    "
+                                                ></v-text-field>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="7"
+                                                class="pb-5 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Sexo</v-label
+                                                >
+                                                <v-radio-group
+                                                    inline
+                                                    class="ml-n3"
+                                                    hide-details
+                                                    v-model="formField.Sex"
+                                                >
+                                                    <v-radio
+                                                        label="Masculino"
+                                                        color="primary"
+                                                        value="1"
+                                                    ></v-radio>
+                                                    <v-radio
+                                                        label="Femenino"
+                                                        color="primary"
+                                                        value="2"
+                                                    ></v-radio>
+                                                    <v-radio
+                                                        label="No especifica"
+                                                        color="primary"
+                                                        value="0"
+                                                    ></v-radio>
+                                                </v-radio-group>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                class="pb-1 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Dirección</v-label
+                                                >
+                                                <v-text-field
+                                                    v-model="
+                                                        formField.Address
+                                                    "
+                                                    placeholder="Escribir"
+                                                >
+                                                    <template
+                                                        v-slot:append-inner
+                                                    >
+                                                        <Icon
+                                                            icon="solar:map-point-broken"
+                                                            width="22"
+                                                        />
+                                                    </template>
+                                                </v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                    </div>
+                                </v-card-item>
+                            </v-card>
+                        </v-col>
+
+                        <v-col
+                            md="5"
+                            xl="5"
+                            cols="12"
+                            class="px-0"
+                        >
+                            <v-card variant="outlined">
+                                <v-overlay
+                                    :model-value="ldgEdit"
+                                    contained
+                                    class="align-center justify-center"
+                                    persistent
+                                    scrim="#d5d5d5"
+                                    :opacity="0.3"
+                                >
+                                    <v-progress-circular
+                                        indeterminate
+                                        color="muted"
+                                    />
+                                </v-overlay>
+                                <v-card-item>
+                                    <!--  <div
+                                        class="d-flex align-center justify-space-between"
+                                    >
+                                        <h5
+                                            class="text-h3 text-muted font-weight-bold"
                                         >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Usuario *</v-label
+                                            Datos Usuario
+                                        </h5>
+                                    </div>
+                                    <div
+                                        class="text-subtitle-1 textSecondary"
+                                    >
+                                        Complete los campos obligatorios(*)
+                                    </div> -->
+
+                                    <div class="mt-4">
+                                        <v-row>
+                                            <v-col
+                                                cols="12"
+                                                class="pb-1 pt-0"
                                             >
-                                            <v-text-field
-                                                v-model="
-                                                    formField.UserName
-                                                "
-                                                placeholder="Escribir"
-                                                :error="errName.active"
-                                                :error-messages="
-                                                    errUserName.message
-                                                "
-                                                @input="errUserNameClear"
-                                                :rules="[
-                                                    (v) =>
-                                                        !!v ||
-                                                        '* El usuario es requerido'
-                                                ]"
-                                                ref="nameFdRef"
-                                                :append-inner-icon="'mdi-account-circle'"
-                                            >
-                                                <!-- <template
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Usuario *</v-label
+                                                ><small
+                                                    v-if="isEditMode"
+                                                    class="text-muted"
+                                                >
+                                                    [ Solo lectura ]</small
+                                                >
+                                                <v-text-field
+                                                    :readonly="isEditMode"
+                                                    v-model="
+                                                        formField.UserName
+                                                    "
+                                                    placeholder="Escribir"
+                                                    :class="
+                                                        isEditMode
+                                                            ? 'readonly-field'
+                                                            : ''
+                                                    "
+                                                    :error="errName.active"
+                                                    :error-messages="
+                                                        errUserName.message
+                                                    "
+                                                    @input="
+                                                        errUserNameClear
+                                                    "
+                                                    :rules="[
+                                                        (v) =>
+                                                            !!v ||
+                                                            '* El usuario es requerido'
+                                                    ]"
+                                                    ref="nameFdRef"
+                                                    :append-inner-icon="'mdi-account-circle'"
+                                                >
+                                                    <!-- <template
                                                     v-slot:append-inner
                                                 >
                                                     <Icon
@@ -726,35 +823,38 @@ onMounted(() => initialize());
                                                         height="22"
                                                     />
                                                 </template> -->
-                                            </v-text-field>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Correo Electrónico
-                                                *</v-label
+                                                </v-text-field>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                class="pb-1 pt-0"
                                             >
-                                            <v-text-field
-                                                v-model="formField.Email"
-                                                placeholder="Escribir"
-                                                type="email"
-                                                :error="errEmail.active"
-                                                :error-messages="
-                                                    errEmail.message
-                                                "
-                                                @input="errEmailClear"
-                                                :rules="[
-                                                    (v) =>
-                                                        !!v ||
-                                                        '* Correo electrónico es requerido'
-                                                ]"
-                                                :append-inner-icon="'mdi-email'"
-                                            >
-                                                <!-- <template
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Correo Electrónico
+                                                    *</v-label
+                                                >
+                                                <v-text-field
+                                                    v-model="
+                                                        formField.Email
+                                                    "
+                                                    placeholder="Escribir"
+                                                    type="email"
+                                                    :error="
+                                                        errEmail.active
+                                                    "
+                                                    :error-messages="
+                                                        errEmail.message
+                                                    "
+                                                    @input="errEmailClear"
+                                                    :rules="[
+                                                        (v) =>
+                                                            !!v ||
+                                                            '* Correo electrónico es requerido'
+                                                    ]"
+                                                    :append-inner-icon="'mdi-email'"
+                                                >
+                                                    <!-- <template
                                                     v-slot:append-inner
                                                 >
                                                     <Icon
@@ -763,200 +863,217 @@ onMounted(() => initialize());
                                                         height="22"
                                                     />
                                                 </template> -->
-                                            </v-text-field>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1 pt-0"
-                                            ><v-label
-                                                class="text-muted mb-1"
-                                                >Contraseña
-                                                {{
-                                                    !isEditMode
-                                                        ? '*'
-                                                        : '(dejar vacío para no cambiar)'
-                                                }}</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="
-                                                    formField.Password
-                                                "
-                                                placeholder="Escribir"
-                                                :error="errPassword.active"
-                                                :error-messages="
-                                                    errPassword.message
-                                                "
-                                                @input="errPasswordClear"
-                                                :rules="
-                                                    isEditMode
-                                                        ? []
-                                                        : [
-                                                              (v) =>
-                                                                  !!v ||
-                                                                  '* La contraseña es requerida'
-                                                          ]
-                                                "
-                                                :type="
-                                                    viewPass
-                                                        ? 'text'
-                                                        : 'password'
-                                                "
-                                                :append-inner-icon="
-                                                    viewPass
-                                                        ? 'mdi-eye'
-                                                        : 'mdi-eye-off'
-                                                "
-                                                @click:append-inner="
-                                                    viewPass = !viewPass
-                                                "
-                                            >
-                                            </v-text-field>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            md="6"
-                                            class="pb-1 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Confirmar Contraseña
-                                                *</v-label
-                                            >
-                                            <v-text-field
-                                                v-model="
-                                                    formField.ConfirmPassword
-                                                "
-                                                placeholder="Escribir"
-                                                :error="
-                                                    errConPassword.active
-                                                "
-                                                :error-messages="
-                                                    errConPassword.message
-                                                "
-                                                @input="
-                                                    errConPasswordClear
-                                                "
-                                                :rules="
-                                                    isEditMode
-                                                        ? []
-                                                        : [
-                                                              (v) =>
-                                                                  !!v ||
-                                                                  '* Este campo es obligatorio'
-                                                          ]
-                                                "
-                                                :type="
-                                                    viewConfPass
-                                                        ? 'text'
-                                                        : 'password'
-                                                "
-                                                :append-inner-icon="
-                                                    viewConfPass
-                                                        ? 'mdi-eye'
-                                                        : 'mdi-eye-off'
-                                                "
-                                                @click:append-inner="
-                                                    viewConfPass =
-                                                        !viewConfPass
-                                                "
-                                            ></v-text-field>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            class="pb-1 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Roles *</v-label
-                                            >
-                                            <v-autocomplete
-                                                v-model="roles"
-                                                :items="listRoles"
-                                                :loading="ldgRoles"
-                                                variant="outlined"
-                                                item-title="Name"
-                                                item-value="Id"
-                                                multiple
-                                                closable-chips
-                                            >
-                                                <template
-                                                    v-slot:chip="{
-                                                        item,
-                                                        props
-                                                    }"
+                                                </v-text-field>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="6"
+                                                class="pb-1 pt-0"
+                                                ><v-label
+                                                    class="text-muted mb-1"
+                                                    >Contraseña *
+                                                    <!-- {{
+                                                        !isEditMode
+                                                            ? '*'
+                                                            : '(dejar vacío para no cambiar)'
+                                                    }} --></v-label
                                                 >
-                                                    <v-chip
-                                                        v-bind="props"
-                                                        label
-                                                        color="primary"
-                                                        size="large"
-                                                        class="mb-1 text-subtitle-1 font-weight-regular"
-                                                    >
-                                                        {{ item.title }}
-                                                    </v-chip>
-                                                </template>
-                                            </v-autocomplete>
-                                        </v-col>
-                                        <v-col
-                                            cols="12"
-                                            class="pb-1 pt-0"
-                                        >
-                                            <v-label
-                                                class="text-muted mb-1"
-                                                >Dependencia *</v-label
-                                            >
-                                            <v-autocomplete
-                                                v-model="dependencies"
-                                                :items="listDependencies"
-                                                :loading="ldgDependencies"
-                                                item-title="Name"
-                                                item-value="Id"
-                                                variant="outlined"
-                                                multiple
-                                                closable-chips
-                                            >
-                                                <template
-                                                    v-slot:chip="{
-                                                        item,
-                                                        props
-                                                    }"
+                                                <v-text-field
+                                                    v-model="
+                                                        formField.Password
+                                                    "
+                                                    placeholder="Escribir"
+                                                    :error="
+                                                        errPassword.active
+                                                    "
+                                                    :error-messages="
+                                                        errPassword.message
+                                                    "
+                                                    @input="
+                                                        errPasswordClear
+                                                    "
+                                                    :rules="
+                                                        isEditMode
+                                                            ? []
+                                                            : [
+                                                                  (v) =>
+                                                                      !!v ||
+                                                                      '* La contraseña es requerida'
+                                                              ]
+                                                    "
+                                                    :type="
+                                                        viewPass
+                                                            ? 'text'
+                                                            : 'password'
+                                                    "
+                                                    :append-inner-icon="
+                                                        viewPass
+                                                            ? 'mdi-eye'
+                                                            : 'mdi-eye-off'
+                                                    "
+                                                    @click:append-inner="
+                                                        viewPass =
+                                                            !viewPass
+                                                    "
                                                 >
-                                                    <v-chip
-                                                        v-bind="props"
-                                                        label
-                                                        color="primary"
-                                                        size="large"
-                                                        class="mb-1 text-subtitle-1 font-weight-regular"
+                                                </v-text-field>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                md="6"
+                                                class="pb-1 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Confirmar Contraseña
+                                                    *</v-label
+                                                >
+                                                <v-text-field
+                                                    v-model="
+                                                        formField.ConfirmPassword
+                                                    "
+                                                    placeholder="Escribir"
+                                                    :error="
+                                                        errConPassword.active
+                                                    "
+                                                    :error-messages="
+                                                        errConPassword.message
+                                                    "
+                                                    @input="
+                                                        errConPasswordClear
+                                                    "
+                                                    :rules="
+                                                        isEditMode
+                                                            ? []
+                                                            : [
+                                                                  (v) =>
+                                                                      !!v ||
+                                                                      '* Este campo es obligatorio'
+                                                              ]
+                                                    "
+                                                    :type="
+                                                        viewConfPass
+                                                            ? 'text'
+                                                            : 'password'
+                                                    "
+                                                    :append-inner-icon="
+                                                        viewConfPass
+                                                            ? 'mdi-eye'
+                                                            : 'mdi-eye-off'
+                                                    "
+                                                    @click:append-inner="
+                                                        viewConfPass =
+                                                            !viewConfPass
+                                                    "
+                                                ></v-text-field>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                class="pb-1 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Roles *</v-label
+                                                >
+                                                <v-autocomplete
+                                                    v-model="roles"
+                                                    :items="listRoles"
+                                                    :loading="ldgRoles"
+                                                    variant="outlined"
+                                                    item-title="Name"
+                                                    item-value="Id"
+                                                    multiple
+                                                    closable-chips
+                                                >
+                                                    <template
+                                                        v-slot:chip="{
+                                                            item,
+                                                            props
+                                                        }"
                                                     >
-                                                        {{ item.title }}
-                                                    </v-chip>
-                                                </template>
-                                            </v-autocomplete>
-                                        </v-col>
-                                    </v-row>
-                                </div>
-                            </v-card-item>
-                        </v-card>
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        class="text-end px-0"
-                    >
-                        <v-btn
-                            color="primary"
-                            :loading="ldgCreate"
-                            type="submit"
-                            class="text-14"
+                                                        <v-chip
+                                                            v-bind="props"
+                                                            label
+                                                            color="primary"
+                                                            size="large"
+                                                            class="mb-1 text-subtitle-1 font-weight-regular"
+                                                        >
+                                                            {{
+                                                                item.title
+                                                            }}
+                                                        </v-chip>
+                                                    </template>
+                                                </v-autocomplete>
+                                            </v-col>
+                                            <v-col
+                                                cols="12"
+                                                class="pb-1 pt-0"
+                                            >
+                                                <v-label
+                                                    class="text-muted mb-1"
+                                                    >Dependencia *</v-label
+                                                >
+                                                <v-autocomplete
+                                                    v-model="dependencies"
+                                                    :items="
+                                                        listDependencies
+                                                    "
+                                                    :loading="
+                                                        ldgDependencies
+                                                    "
+                                                    item-title="Name"
+                                                    item-value="Id"
+                                                    variant="outlined"
+                                                    multiple
+                                                    closable-chips
+                                                >
+                                                    <template
+                                                        v-slot:chip="{
+                                                            item,
+                                                            props
+                                                        }"
+                                                    >
+                                                        <v-chip
+                                                            v-bind="props"
+                                                            label
+                                                            color="primary"
+                                                            size="large"
+                                                            class="mb-1 text-subtitle-1 font-weight-regular"
+                                                        >
+                                                            {{
+                                                                item.title
+                                                            }}
+                                                        </v-chip>
+                                                    </template>
+                                                </v-autocomplete>
+                                            </v-col>
+                                        </v-row>
+                                    </div>
+                                </v-card-item>
+                            </v-card>
+                        </v-col>
+
+                        <v-col
+                            cols="12"
+                            class="text-end px-0"
                         >
-                            <Icon
-                                icon="solar:diskette-broken"
-                                width="20"
-                                class="mr-1"
-                            />
-                            Guardar
-                        </v-btn>
-                    </v-col>
+                            <v-btn
+                                variant="flat"
+                                color="primary"
+                                :loading="ldgCreate"
+                                type="submit"
+                                rounded="sm"
+                                class="text-14"
+                            >
+                                <Icon
+                                    icon="solar:diskette-line-duotone"
+                                    width="18"
+                                    class="mr-1"
+                                />
+                                Guardar
+                            </v-btn>
+                        </v-col>
+                    </v-row>
                 </v-form>
             </UiParentCard>
             <!-- <UiParentCard
@@ -1016,5 +1133,15 @@ onMounted(() => initialize());
 .v-text-field .v-input__details,
 .v-input__details {
     padding-top: 0px !important;
+}
+</style>
+<style scoped>
+:deep(.readonly-field .v-field) {
+    background-color: rgba(0, 0, 0, 0.05);
+    opacity: 0.85;
+}
+
+:deep(.readonly-field .v-field__outline) {
+    opacity: 0.3;
 }
 </style>

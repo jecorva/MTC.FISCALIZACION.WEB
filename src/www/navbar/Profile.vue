@@ -6,7 +6,7 @@ import UiParentCard from '@/components/shared/UiParentCard.vue';
 import JAppSnackBar from '@/components/JAppSnackBar.vue';
 import { profileService } from '@/services/profileService';
 
-// |<-- SNACKBAR --|
+// #region [Snackbar]
 type SnackbarType = 'success' | 'error' | 'warning' | 'info';
 const snackbar = ref(false);
 const snackbarMsg = ref('');
@@ -16,20 +16,23 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
     snackbarType.value = type;
     snackbar.value = true;
 };
+// #endregion
 
-// |<-- BREADCRUMB --|
+// #region [Breadcrumbs]
 const page = ref({ title: 'Mi Perfil' });
 const breadcrumbs = ref([
     { title: 'Mi Perfil', disabled: true, href: '#' }
 ]);
+// #endregion
 
-// |<-- ESTADO --|
+// #region [Estados]
 const loading = ref(false);
 const savingProfile = ref(false);
 const savingPassword = ref(false);
 const uploadingPhoto = ref(false);
 const photoPreview = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
+// #endregion
 
 // |<-- PERFIL --|
 const profile = reactive({
@@ -125,7 +128,7 @@ const onPhotoSelected = async (event: Event) => {
     try {
         const data = await profileService.uploadPhoto(file);
         profile.Picture = data?.Picture ?? profile.Picture;
-        showSnackbar('Foto actualizada correctamente', 'success');
+        showSnackbar('Foto actualizada.', 'success');
     } catch (error) {
         const msg = error?.response?.data?.message;
         // showSnackbar(msg || 'Error al subir la foto', 'error');
@@ -174,7 +177,7 @@ const saveProfile = async () => {
             MaternalSurname: profile.MaternalSurname,
             Phone: profile.Phone
         });
-        showSnackbar('Perfil actualizado correctamente', 'success');
+        showSnackbar('Perfil actualizado.', 'success');
     } catch (error) {
         const msg = error?.response?.data?.message;
         //showSnackbar(msg || 'Error al actualizar el perfil', 'error');
@@ -246,350 +249,391 @@ onMounted(() => loadProfile());
     <BaseBreadcrumb
         :title="page.title"
         :breadcrumbs="breadcrumbs"
+        class="elevation-1"
     />
 
-    <v-row v-if="loading">
-        <v-col class="d-flex justify-center py-10">
-            <v-progress-circular
-                indeterminate
-                color="primary"
-            />
-        </v-col>
-    </v-row>
-
-    <v-row v-else>
-        <v-col
-            cols="12"
-            class="py-0"
-        >
-            <v-alert
-                type="error"
-                variant="flat"
-                closable
-                close-label="Close Alert"
-                class="mb-4"
-                v-if="errAlert.active"
+    <div class="position-relative">
+        <!-- Overlay de loading -->
+        <v-fade-transition>
+            <div
+                v-if="loading"
+                class="loading-overlay"
             >
-                <div>
-                    {{ errAlert.message }}
-                </div>
-            </v-alert>
-        </v-col>
-        <!-- Columna izquierda: Picture + datos bloqueados -->
-        <v-col
-            cols="12"
-            md="4"
-        >
-            <UiParentCard>
-                <!-- Picture de perfil -->
-                <div class="d-flex flex-column align-center gap-3 pb-4">
-                    <v-avatar
-                        size="96"
-                        class="cursor-pointer"
-                        @click="triggerFileInput"
+                <v-progress-circular
+                    indeterminate
+                    color="muted"
+                    size="40"
+                />
+            </div>
+        </v-fade-transition>
+        <v-row>
+            <v-col
+                cols="12"
+                class="py-0"
+            >
+                <v-alert
+                    type="error"
+                    variant="flat"
+                    closable
+                    close-label="Close Alert"
+                    class="mb-4"
+                    v-if="errAlert.active"
+                >
+                    <div>
+                        {{ errAlert.message }}
+                    </div>
+                </v-alert>
+            </v-col>
+            <!-- Columna izquierda: Picture + datos bloqueados -->
+            <v-col
+                cols="12"
+                md="4"
+            >
+                <UiParentCard 
+                    title="Mi cuenta"
+                    icon="solar:user-circle-linear"
+                    class="elevation-1">
+                    <!-- Picture de perfil -->
+                    <div
+                        class="d-flex flex-column align-center gap-3 pb-4"
                     >
-                        <v-img
-                            v-if="photoPreview || profile.Picture"
-                            :src="photoPreview ?? profile.Picture"
-                        />
-                        <span
-                            v-else
-                            class="text-h5 font-weight-medium"
+                        <v-avatar
+                            size="96"
+                            class="cursor-pointer"
+                            @click="triggerFileInput"
                         >
-                            {{ initials }}
-                        </span>
-
-                        <!-- Overlay cámara o loading -->
-                        <div class="avatar-overlay">
-                            <v-progress-circular
-                                v-if="uploadingPhoto"
-                                indeterminate
-                                color="white"
-                                size="24"
+                            <v-img
+                                v-if="photoPreview || profile.Picture"
+                                :src="photoPreview ?? profile.Picture"
                             />
-                            <v-icon
+                            <span
                                 v-else
-                                color="white"
+                                class="text-h5 font-weight-medium"
                             >
-                                mdi-camera
-                            </v-icon>
+                                {{ initials }}
+                            </span>
+
+                            <!-- Overlay cámara o loading -->
+                            <div class="avatar-overlay">
+                                <v-progress-circular
+                                    v-if="uploadingPhoto"
+                                    indeterminate
+                                    color="white"
+                                    size="24"
+                                />
+                                <v-icon
+                                    v-else
+                                    color="white"
+                                >
+                                    mdi-camera
+                                </v-icon>
+                            </div>
+                        </v-avatar>
+
+                        <input
+                            ref="fileInput"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            class="d-none"
+                            @change="onPhotoSelected"
+                        />
+
+                        <v-btn
+                            variant="outlined"
+                            size="small"
+                            class="font-weight-medium"
+                            rounded="sm"
+                            prepend-icon="mdi-upload"
+                            :loading="uploadingPhoto"
+                            @click="triggerFileInput"
+                        >
+                            Cambiar Foto
+                        </v-btn>
+
+                        <p class="text-caption text-muted">
+                            JPG, PNG o WEBP. Máx 2 MB
+                        </p>
+                    </div>
+
+                    <v-divider />
+
+                    <!-- Campos bloqueados -->
+                    <div class="pt-4 d-flex flex-column gap-3">
+                        <div>
+                            <p
+                                class="text-caption text-uppercase text-poppins text-muted mb-1"
+                            >
+                                Número de documento
+                            </p>
+                            <p
+                                class="text-body-3 d-flex align-center text-manrope gap-1"
+                            >
+                                <v-icon
+                                    size="16"
+                                    class="mr-2"
+                                >
+                                    mdi-card-account-details-outline
+                                </v-icon>
+                                {{ profile.DocumentNumber }}
+                            </p>
                         </div>
-                    </v-avatar>
-
-                    <input
-                        ref="fileInput"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        class="d-none"
-                        @change="onPhotoSelected"
-                    />
-
-                    <v-btn
-                        variant="outlined"
-                        size="small"
-                        class="font-weight-medium"
-                        prepend-icon="mdi-upload"
-                        :loading="uploadingPhoto"
-                        @click="triggerFileInput"
-                    >
-                        Cambiar Foto
-                    </v-btn>
-
-                    <p class="text-caption text-medium-emphasis">
-                        JPG, PNG o WEBP. Máx 2 MB
-                    </p>
-                </div>
-
-                <v-divider />
-
-                <!-- Campos bloqueados -->
-                <div class="pt-4 d-flex flex-column gap-3">
-                    <div>
-                        <p
-                            class="text-caption text-uppercase text-poppins text-medium-emphasis mb-1"
-                        >
-                            Número de documento
-                        </p>
-                        <p
-                            class="text-body-3 d-flex align-center text-manrope gap-1"
-                        >
-                            <v-icon
-                                size="16"
-                                class="mr-2"
+                        <div>
+                            <p
+                                class="text-caption text-uppercase text-poppins text-muted mb-1"
                             >
-                                mdi-card-account-details-outline
-                            </v-icon>
-                            {{ profile.DocumentNumber }}
-                        </p>
-                    </div>
-                    <div>
-                        <p
-                            class="text-caption text-uppercase text-poppins text-medium-emphasis mb-1"
-                        >
-                            Usuario
-                        </p>
-                        <p
-                            class="text-body-3 d-flex align-center text-manrope gap-1"
-                        >
-                            <v-icon
-                                size="16"
-                                class="mr-2"
+                                Usuario
+                            </p>
+                            <p
+                                class="text-body-3 d-flex align-center text-manrope gap-1"
                             >
-                                mdi-account
-                            </v-icon>
-                            {{ profile.UserName }}
-                        </p>
-                    </div>
-                    <div>
-                        <p
-                            class="text-caption text-uppercase text-poppins text-medium-emphasis mb-1"
-                        >
-                            Correo electrónico
-                        </p>
-                        <p
-                            class="text-body-3 d-flex align-center text-manrope gap-1"
-                        >
-                            <v-icon
-                                size="16"
-                                class="mr-2"
+                                <v-icon
+                                    size="16"
+                                    class="mr-2"
+                                >
+                                    mdi-account
+                                </v-icon>
+                                {{ profile.UserName }}
+                            </p>
+                        </div>
+                        <div>
+                            <p
+                                class="text-caption text-uppercase text-poppins text-muted mb-1"
                             >
-                                mdi-email
-                            </v-icon>
-                            {{ profile.Email }}
-                        </p>
+                                Correo electrónico
+                            </p>
+                            <p
+                                class="text-body-3 d-flex align-center text-manrope gap-1"
+                            >
+                                <v-icon
+                                    size="16"
+                                    class="mr-2"
+                                >
+                                    mdi-email
+                                </v-icon>
+                                {{ profile.Email }}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </UiParentCard>
-        </v-col>
+                </UiParentCard>
+            </v-col>
 
-        <!-- Columna derecha: formularios -->
-        <v-col
-            cols="12"
-            md="8"
-        >
-            <!-- Datos personales -->
-            <UiParentCard
-                title="Información personal"
-                class="mb-4"
+            <!-- Columna derecha: formularios -->
+            <v-col
+                cols="12"
+                md="8"
             >
-                <v-row>
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    >
-                        <v-text-field
-                            v-model="profile.Name"
-                            @update:modelValue="
-                                (val) => (profile.Name = val.toUpperCase())
-                            "
-                            label="Nombre(s) *"
-                            variant="outlined"
-                            density="comfortable"
-                            :error-messages="profileErrors.Name"
-                        />
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    >
-                        <v-text-field
-                            v-model="profile.PaternalSurname"
-                            @update:modelValue="
-                                (val) =>
-                                    (profile.PaternalSurname =
-                                        val.toUpperCase())
-                            "
-                            label="Apellido Paterno *"
-                            variant="outlined"
-                            density="comfortable"
-                            :error-messages="profileErrors.PaternalSurname"
-                        />
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    >
-                        <v-text-field
-                            v-model="profile.MaternalSurname"
-                            @update:modelValue="
-                                (val) =>
-                                    (profile.MaternalSurname =
-                                        val.toUpperCase())
-                            "
-                            label="Apellido Materno"
-                            variant="outlined"
-                            density="comfortable"
-                        />
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    >
-                        <v-text-field
-                            v-model="profile.Phone"
-                            placeholder="999999999"
-                            v-maska="'#########'"
-                            label="Teléfono"
-                            variant="outlined"
-                            density="comfortable"
-                            :error-messages="profileErrors.Phone"
-                            prepend-inner-icon="mdi-phone-outline"
-                        />
-                    </v-col>
-                </v-row>
+                <!-- Datos personales -->
+                <UiParentCard
+                    title="Información personal"
+                    icon="solar:user-id-linear"
+                    class="mb-4 elevation-1"
+                >
+                    <v-row>
+                        <v-col
+                            cols="12"
+                            sm="6"
+                            class="pb-0"
+                        >
+                            <v-text-field
+                                v-model="profile.Name"
+                                @update:modelValue="
+                                    (val) =>
+                                        (profile.Name = val.toUpperCase())
+                                "
+                                label="Nombre(s) *"
+                                variant="outlined"
+                                density="comfortable"
+                                :error-messages="profileErrors.Name"
+                                append-inner-icon="mdi-information-outline"
+                            />
+                        </v-col>
+                        <v-col
+                            cols="12"
+                            sm="6"
+                            class="pb-0"
+                        >
+                            <v-text-field
+                                v-model="profile.PaternalSurname"
+                                @update:modelValue="
+                                    (val) =>
+                                        (profile.PaternalSurname =
+                                            val.toUpperCase())
+                                "
+                                label="Apellido Paterno *"
+                                variant="outlined"
+                                density="comfortable"
+                                :error-messages="
+                                    profileErrors.PaternalSurname
+                                "
+                                append-inner-icon="mdi-information-outline"
+                            />
+                        </v-col>
+                        <v-col
+                            cols="12"
+                            sm="6"
+                            class="pb-0"
+                        >
+                            <v-text-field
+                                v-model="profile.MaternalSurname"
+                                @update:modelValue="
+                                    (val) =>
+                                        (profile.MaternalSurname =
+                                            val.toUpperCase())
+                                "
+                                label="Apellido Materno"
+                                variant="outlined"
+                                density="comfortable"
+                                append-inner-icon="mdi-information-outline"
+                            />
+                        </v-col>
+                        <v-col
+                            cols="12"
+                            sm="6"
+                            class="pb-0"
+                        >
+                            <v-text-field
+                                v-model="profile.Phone"
+                                placeholder="999999999"
+                                v-maska="'#########'"
+                                label="Teléfono"
+                                variant="outlined"
+                                density="comfortable"
+                                :error-messages="profileErrors.Phone"
+                                append-inner-icon="mdi-phone-outline"
+                            />
+                        </v-col>
+                    </v-row>
 
-                <div class="d-flex justify-end gap-2 pt-2">
-                    <!-- <v-btn
+                    <div class="d-flex justify-end gap-2 pt-2">
+                        <!-- <v-btn
                         variant="outlined"
                         @click="loadProfile"
                     >
                         Cancelar
                     </v-btn> -->
-                    <v-btn
-                        color="primary"
-                        :loading="savingProfile"
-                        class="text-14"
-                        @click="saveProfile"
-                    >
-                        <Icon
-                            icon="solar:diskette-broken"
-                            width="20"
-                            class="mr-1"
-                        />
-                        Guardar
-                    </v-btn>
-                </div>
-            </UiParentCard>
+                        <v-btn
+                            color="primary"
+                            rounded="sm"
+                            :loading="savingProfile"
+                            class="text-14"
+                            @click="saveProfile"
+                        >
+                            <Icon
+                                icon="solar:diskette-line-duotone"
+                                width="18"
+                                class="mr-1"
+                            />
+                            Guardar
+                        </v-btn>
+                    </div>
+                </UiParentCard>
 
-            <!-- Cambio de contraseña -->
-            <UiParentCard title="Cambio de contraseña">
-                <v-row>
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    >
-                        <v-text-field
-                            v-model="passwordForm.current_password"
-                            label="Contraseña actual *"
-                            :type="showCurrentPw ? 'text' : 'password'"
-                            :append-inner-icon="
-                                showCurrentPw ? 'mdi-eye-off' : 'mdi-eye'
-                            "
-                            variant="outlined"
-                            density="comfortable"
-                            :error-messages="
-                                passwordErrors.current_password
-                            "
-                            @click:append-inner="
-                                showCurrentPw = !showCurrentPw
-                            "
+                <!-- Cambio de contraseña -->
+                <UiParentCard
+                    icon="solar:lock-password-linear"
+                    title="Cambio de contraseña"                    
+                    class="elevation-1"
+                >
+                    <v-row>
+                        <v-col
+                            cols="12"
+                            sm="6"
+                            class="pb-0"
+                        >
+                            <v-text-field
+                                v-model="passwordForm.current_password"
+                                label="Contraseña actual *"
+                                :type="showCurrentPw ? 'text' : 'password'"
+                                :append-inner-icon="
+                                    showCurrentPw
+                                        ? 'mdi-eye-off'
+                                        : 'mdi-eye'
+                                "
+                                variant="outlined"
+                                density="comfortable"
+                                :error-messages="
+                                    passwordErrors.current_password
+                                "
+                                @click:append-inner="
+                                    showCurrentPw = !showCurrentPw
+                                "
+                            />
+                        </v-col>
+                        <v-col
+                            cols="12"
+                            sm="6"
                         />
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    />
-                    <!-- spacer -->
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    >
-                        <v-text-field
-                            v-model="passwordForm.new_password"
-                            label="Nueva contraseña *"
-                            :type="showNewPw ? 'text' : 'password'"
-                            :append-inner-icon="
-                                showNewPw ? 'mdi-eye-off' : 'mdi-eye'
-                            "
-                            variant="outlined"
-                            density="comfortable"
-                            :error-messages="passwordErrors.new_password"
-                            hint="Mínimo 8 caracteres"
-                            persistent-hint
-                            @click:append-inner="showNewPw = !showNewPw"
-                        />
-                    </v-col>
-                    <v-col
-                        cols="12"
-                        sm="6"
-                    >
-                        <v-text-field
-                            v-model="passwordForm.confirm_password"
-                            label="Confirmar contraseña *"
-                            :type="showConfirmPw ? 'text' : 'password'"
-                            :append-inner-icon="
-                                showConfirmPw ? 'mdi-eye-off' : 'mdi-eye'
-                            "
-                            variant="outlined"
-                            density="comfortable"
-                            :error-messages="
-                                passwordErrors.confirm_password
-                            "
-                            @click:append-inner="
-                                showConfirmPw = !showConfirmPw
-                            "
-                        />
-                    </v-col>
-                </v-row>
+                        <!-- spacer -->
+                        <v-col
+                            cols="12"
+                            sm="6"
+                            class="pb-0"
+                        >
+                            <v-text-field
+                                v-model="passwordForm.new_password"
+                                label="Nueva contraseña *"
+                                :type="showNewPw ? 'text' : 'password'"
+                                :append-inner-icon="
+                                    showNewPw ? 'mdi-eye-off' : 'mdi-eye'
+                                "
+                                variant="outlined"
+                                density="comfortable"
+                                :error-messages="
+                                    passwordErrors.new_password
+                                "
+                                hint="Mínimo 8 caracteres"
+                                persistent-hint
+                                @click:append-inner="
+                                    showNewPw = !showNewPw
+                                "
+                            />
+                        </v-col>
+                        <v-col
+                            cols="12"
+                            sm="6"
+                            class="pb-0"
+                        >
+                            <v-text-field
+                                v-model="passwordForm.confirm_password"
+                                label="Confirmar contraseña *"
+                                :type="showConfirmPw ? 'text' : 'password'"
+                                :append-inner-icon="
+                                    showConfirmPw
+                                        ? 'mdi-eye-off'
+                                        : 'mdi-eye'
+                                "
+                                variant="outlined"
+                                density="comfortable"
+                                :error-messages="
+                                    passwordErrors.confirm_password
+                                "
+                                @click:append-inner="
+                                    showConfirmPw = !showConfirmPw
+                                "
+                            />
+                        </v-col>
+                    </v-row>
 
-                <div class="d-flex justify-end pt-2">
-                    <v-btn
-                        color="primary"
-                        :loading="savingPassword"
-                        class="text-14"
-                        @click="changePassword"
-                    >
-                        <Icon
-                            icon="solar:diskette-broken"
-                            width="20"
-                            class="mr-1"
-                        />
-                        Cambiar Contraseña
-                    </v-btn>
-                </div>
-            </UiParentCard>
-        </v-col>
-    </v-row>
+                    <div class="d-flex justify-end pt-2">
+                        <v-btn
+                            color="primary"
+                            rounded="sm"
+                            :loading="savingPassword"
+                            class="text-14"
+                            @click="changePassword"
+                        >
+                            <Icon
+                                icon="solar:diskette-line-duotone"
+                                width="18"
+                                class="mr-1"
+                            />
+                            Cambiar Contraseña
+                        </v-btn>
+                    </div>
+                </UiParentCard>
+            </v-col>
+        </v-row>
+    </div>
 
     <JAppSnackBar
         v-model="snackbar"
@@ -599,6 +643,18 @@ onMounted(() => loadProfile());
 </template>
 
 <style scoped>
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(0px);
+    border-radius: 8px;
+}
+
 .avatar-overlay {
     position: absolute;
     inset: 0;

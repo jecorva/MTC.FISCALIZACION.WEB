@@ -8,6 +8,35 @@ const MainRoutes = {
             path: 'dashboard',
             component: () => import('@/www/dashboard/Index.vue')
         },
+
+        // #region UserPath
+        {
+            name: 'Users',
+            path: 'usuarios',
+            component: () => import('@/www/setting/users/Index.vue')
+        },
+        {
+            name: 'UserForm',
+            path: 'usuarios/registrar',
+            component: () => import('@/www/setting/users/Form.vue')
+        },
+        {
+            name: 'UserFormEdit',
+            path: 'usuarios/:Id/editar',
+            component: () => import('@/www/setting/users/Form.vue')
+        },
+        {
+            name: 'UserPermissions',
+            path: 'usuarios/:Id/permisos',
+            component: () => import('@/www/setting/users/Permissions.vue')
+        },
+        {
+            name: 'UserProfile',
+            path: 'profile',
+            component: () => import('@/www/navbar/Profile.vue')
+        },
+        // #endregion
+
         ///|-- ROLES --|
         {
             name: 'Roles',
@@ -19,32 +48,7 @@ const MainRoutes = {
             path: 'admin/roles/permisos/:id', // ← /dashboard/roles/permisos/5
             component: () => import('@/www/setting/roles/Permissions.vue')
         },
-        ///|-- USERS --|
-        {
-            name: 'Users',
-            path: 'admin/usuarios',
-            component: () => import('@/www/setting/users/Index.vue')
-        },
-        {
-            name: 'UserForm',
-            path: 'admin/usuarios/nuevo',
-            component: () => import('@/www/setting/users/Form.vue')
-        },
-        {
-            name: 'UserFormEdit',
-            path: 'admin/usuarios/editar/:Id',
-            component: () => import('@/www/setting/users/Form.vue')
-        },
-        {
-            name: 'UserPermissions',
-            path: 'admin/usuarios/permisos/:Id',
-            component: () => import('@/www/setting/users/Permissions.vue')
-        },
-        {
-            name: 'UserProfile',
-            path: 'profile',
-            component: () => import('@/www/navbar/Profile.vue')
-        },
+        
         ///|-- DRIVERS --|
         {
             name: 'Drivers',

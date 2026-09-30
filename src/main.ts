@@ -49,3 +49,9 @@ app.use(VueScrollTo, {
     duration: 1000,
     easing: "ease",
 })
+
+const loader = document.getElementById('app-loader');
+if (loader) {
+    loader.classList.add('fade-out');
+    setTimeout(() => loader.remove(), 400);
+}

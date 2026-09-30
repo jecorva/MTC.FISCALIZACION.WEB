@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
 
             // 2. Login
             const response = await httpClient.post(routesList.auth.login, {
-                Username: username,
+                UserName: username,
                 Password: password
             });
 
@@ -47,7 +47,7 @@ export const useAuthStore = defineStore('auth', {
 
         async fetchUser() {
             try {
-                const response = await httpClient.get(routesList.auth.me);
+                const response = await httpClient.get(routesList.auth.checkOut);
                 this.user = response.data.data;
             } catch {
                 this.user = null;

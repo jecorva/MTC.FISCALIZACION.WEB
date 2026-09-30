@@ -50,7 +50,7 @@ const AQUA_THEME: ThemeTypes = {
         warning: '#ffd648',
         error: '#ff6692',
         danger: '#bf0909',
-        bgRedMTC: '#bf0909',
+        bgRedMTC: '#EB1E23',
         bgGrayMTC: '#58595B',
         lightprimary: '#EFF9FF',
         lightsecondary: '#EDFBF7',
@@ -63,14 +63,16 @@ const AQUA_THEME: ThemeTypes = {
         borderColor: '#e0e6eb',
         /* containerBg: '#1A2537', */
         containerBg: '#fff',
-        background: '#1A2537',
+        background: '#fff',
         hoverColor: '#f6f9fc',
         surface: '#fff',
         grey100: '#F6F7F9',
         grey200: '#29343d',
         darkgray: '#0a2540',
         light: '#EFF4FA',
-        muted: '#526b7a'
+        muted: '#526b7a',
+        headerDialog: '#FFFFFF',
+        titleDialog: '#58595B'
     }
 };
 

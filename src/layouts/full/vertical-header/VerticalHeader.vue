@@ -59,7 +59,7 @@ const getCart = computed(() => {
             icon
             size="small"
             variant="text"
-            color="primary"
+            color="light"
             @click.stop="
                 customizer.SET_MINI_SIDEBAR(!customizer.mini_sidebar)
             "
@@ -67,7 +67,7 @@ const getCart = computed(() => {
             <Icon
                 icon="solar:hamburger-menu-line-duotone"
                 height="22"
-                style="color: #0074ba !important"
+                style="color: #EB1E23 !important"
             />
         </v-btn>
 
@@ -75,14 +75,14 @@ const getCart = computed(() => {
             class="hidden-lg-and-up custom-hover-primary"
             size="small"
             variant="text"
-            color="primary"
+            color="light"
             icon
             @click.stop="customizer.SET_SIDEBAR_DRAWER"
         >
             <Icon
                 icon="solar:hamburger-menu-line-duotone"
                 height="22"
-                style="color: #0074ba !important"
+                style="color: #EB1E23 !important"
             />
         </v-btn>
 

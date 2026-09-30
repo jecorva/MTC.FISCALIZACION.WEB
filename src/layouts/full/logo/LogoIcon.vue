@@ -5,7 +5,7 @@ import Logoiconimg from '@/assets/images/logos/logo.png';
 <template>
     <div class="logo">
         <RouterLink to="/">
-            <img :src="Logoiconimg" alt="Universidad Nacional de Piura" width="200" />
+            <img :src="Logoiconimg" alt="Ministerio de Transporte y Comunicación" width="200" />
         </RouterLink>
     </div>
 </template>

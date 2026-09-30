@@ -7,9 +7,9 @@ export const profileService = {
         return data.data;
     },
 
-    update: async (xData) => {
+    update: async (profile) => {
         const { data } = await httpClient.post(routesList.profile.update, {
-            requestData: xData
+            requestData: profile
         });
         return data.data;
     },
@@ -32,10 +32,10 @@ export const profileService = {
         return data.data;
     },
 
-    changePass: async (xData) => {
+    changePass: async (password) => {
         const { data } = await httpClient.post(
             routesList.profile.changePass,
-            { requestData: xData }
+            { requestData: password }
         );
         return data.data;
     }

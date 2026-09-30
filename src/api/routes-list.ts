@@ -1,14 +1,36 @@
 export const routesList = {
     auth: {
-        login: '/auth/login',
-        logout: '/auth/logout',
-        me: '/auth/me',
-        permissions: '/auth/permissions'
+        checkOut    : '/auth/check-out',
+        login       : '/auth/login',
+        logout      : '/auth/logout',        
+        permissions : '/auth/permissions'
     },
 
     sidebar: {
-        menu: '/sidebar/menu'
+        menu        : '/sidebar/menu'
     },
+
+    profile: {
+        get         : '/profile/me',
+        update      : '/profile/update',
+        uploadPhoto : '/profile/upload-photo',
+        deletePhoto : '/profile/delete-photo',
+        changePass  : '/profile/change-pass'
+    },
+
+    users: {
+        getAll      : '/users',        
+        create      : '/users',
+        getById     : (id: string) => `/users/${id}`,
+        update      : (id: string) => `/users/${id}`,
+        changePass  : (id: string) => `/users/${id}/change-pass`,
+        delete      : (id: string) => `/users/${id}`
+    },
+
+    userPermissions: {
+        getById         : (id: string) => `/users/${id}/permissions`,
+        syncPermissions : (id: string) => `/users/${id}/sync`
+    }, 
 
     roles: {
         getAll: '/role/list',
@@ -21,30 +43,7 @@ export const routesList = {
     permissions: {
         getById: (id) => `/permission/get/${id}/permissions`,
         syncPermissions: (id) => `/permission/sync/${id}/permissions`
-    },
-
-    users: {
-        getAll: '/user/list',
-        getById: (id: string) => `/user/get/${id}`,
-        create: '/user/create',
-        update: (id: string) => `/user/update/${id}`,
-        changePass: (id: string) => `/user/change-pass/${id}`,
-        delete: (id: string) => `/user/delete/${id}`
-    },
-
-    userPermissions: {
-        getById: (id: string) => `/user-permission/get/${id}/permissions`,
-        syncPermissions: (id: string) =>
-            `/user-permission/sync/${id}/permissions`
-    },
-
-    profile: {
-        get: '/profile/me',
-        update: '/profile/update',
-        uploadPhoto: '/profile/upload-photo',
-        deletePhoto: '/profile/delete-photo',
-        changePass: '/profile/change-pass'
-    },
+    },       
 
     dependencies: {
         getAll: '/dependency/list',

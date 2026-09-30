@@ -43,10 +43,8 @@ async function validate() {
         const code = error?.response?.data?.code;
 
         const messages: Record<string, string> = {
-            USER_NOT_FOUND: 'El usuario ingresado no existe',
-            INVALID_PASSWORD: 'La contraseña es incorrecta',
-            USER_BLOCKED:
-                'Tu cuenta está desactivada, comuníquese con el administrador'
+            _InvalidCredentials_: 'Usuario o contraseña incorrectos',
+            _UserInactive_: 'Cuenta está desactivada, comuníquese con el administrador'
         };
 
         apiError.value = messages[code] || 'Error al iniciar sesión';

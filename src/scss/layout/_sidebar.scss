@@ -39,7 +39,7 @@
         font-size: 0.875rem;
         font-weight: 500;
         margin-top: 24px;
-        color: rgb(var(--v-theme-textdanger));
+        color: rgb(var(--v-theme-bgRedMTC));
 
         &:first-child {
             margin-top: 0 !important;
@@ -58,7 +58,7 @@
             .v-list-item__prepend .dot {
                 height: 6px;
                 width: 6px;
-                background-color: rgb(var(--v-theme-textSecondary));
+                background-color: rgb(var(--v-theme-textSecondary)); /* Puntos del Sidebar */
                 border-radius: 50%;
                 margin-inline-end: 8px !important;
             }
@@ -68,16 +68,16 @@
             }
 
             &:hover {
-                color: rgb(var(--v-theme-danger));
+                color: rgb(var(--v-theme-bgRedMTC)) ; /* Color del texto al lado del punto al pasar el mouse*/
 
                 .v-list-item__prepend .dot {
-                    background-color: rgb(var(--v-theme-danger));
+                    background-color: rgb(var(--v-theme-bgRedMTC));
                 }
             }
 
             &.v-list-item--active {
                 .v-list-item__prepend .dot {
-                    background-color: rgb(var(--v-theme-danger));
+                    background-color: rgb(var(--v-theme-bgRedMTC));                    
                 }
             }
         }
@@ -86,11 +86,11 @@
     .v-list-group__items .v-list-item,
     .v-list-item {
         border-radius: $border-radius-root + 4;
-        color: rgba(var(--v-theme-textdanger), 0.8);
+        color: rgba(var(--v-theme-bgRedMTC), 0.8);
         margin: 0 0 2px;
 
         &:hover {
-            color: rgb(var(--v-theme-danger));
+            color: rgb(var(--v-theme-bgRedMTC)) ;
         }
 
         .v-list-item__prepend {
@@ -112,20 +112,20 @@
 
     /*This is for the dropdown*/
     .v-list {
-        color: rgb(var(--v-theme-textSecondary));
+        color: rgb(var(--v-theme-bgRedMTC)) !important;
 
         .v-list-subheader {
             &:first-of-type {
                 border-top: 0;
             }
 
-            border-top: 1px solid rgb(var(--v-theme-borderColor));
+            border-top: 1px solid rgb(var(--v-theme-bgRedMTC));
         }
 
         > .v-list-item.v-list-item--active,
         .v-list-item--active > .v-list-item__overlay {
-            background: rgb(var(--v-theme-danger));
-            color: white;
+            background: rgb(var(--v-theme-bgRedMTC), 0.9) !important; /* Color de la selección*/
+            color: rgb(var(--v-theme-light)) !important;
             /* box-shadow: 0 17px 20px -8px rgba(var(--v-theme-danger), 0.2); */
         }
 
@@ -134,8 +134,8 @@
 
             > .v-list-item--active,
             > .v-list-item--active:hover {
-                background: rgb(var(--v-theme-danger));
-                color: white;
+                background: rgb(var(--v-theme-bgRedMTC), 0.9); /* Color de la dropdown*/
+                color: rgb(var(--v-theme-light)) !important; /* Color del texto de la dropdown*/
                 /* box-shadow: 0 17px 20px -8px rgba(var(--v-theme-danger), 0.2); */
             }
 
@@ -143,8 +143,8 @@
             .v-list-group__items
                 .v-list-item.v-list-item--active
                 > .v-list-item__overlay {
-                background: transparent;
-                color: rgb(var(--v-theme-danger));
+                background: transparent; /* Fondo del seleector*/
+                color: rgb(var(--v-theme-bgRedMTC));
             }
         }
     }
@@ -277,9 +277,10 @@
 }
 
 .leftSidebar .v-list-item-title {
-    font-family: 'Open Sans', sans-serif !important;
-    font-weight: 500 !important;
-    letter-spacing: -0.2px;
+    font-family: 'Source Sans Pro', sans-serif !important;
+    font-weight: 300 !important;    
+    -webkit-text-stroke: 0.3px currentColor;
+    letter-spacing: 0.5px;
     white-space: normal !important;
     overflow: visible !important;
     text-overflow: unset !important;
@@ -292,12 +293,12 @@
     text-overflow: ellipsis !important;
 }
 
-/* .v-theme--AQUA_THEME {
+.v-theme--AQUA_THEME {
     .leftSidebar {
         // background-color: #1a2537 !important;
         background-color: #fff !important;
 
-        .v-list-item-title {
+        /* .v-list-item-title {
             color: #99a4af;
         }
 
@@ -307,9 +308,9 @@
 
         .v-list-subheader {
             color: #7c8fac !important;
-        }
+        } */
     }
-} */
+}
 
 /* Cabecera */
 .v-theme--AQUA_THEME {

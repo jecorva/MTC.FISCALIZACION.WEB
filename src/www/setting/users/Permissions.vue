@@ -7,6 +7,7 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import JAppSnackBar from '@/components/JAppSnackBar.vue';
 import { userPermissionService } from '@/services/userService';
+import { getApiError } from '@/utils/apiError';
 
 // |<-- SNACKBAR --|
 type SnackbarType = 'success' | 'error' | 'warning' | 'info';
@@ -25,7 +26,7 @@ const breadcrumbs = ref([
     {
         title: 'Usuarios',
         disabled: false,
-        href: '/admin/usuarios'
+        href: '/usuarios'
     },
     { title: 'Permisos', disabled: true, href: '#' }
 ]);
@@ -73,8 +74,8 @@ async function loadTree() {
         userName.value = data.userName ?? '';
         tree.value = data.tree ?? [];
         expanded.value = tree.value.map((n: any) => n.id);
-    } catch {
-        showSnackbar('Error al cargar los permisos', 'error');
+    } catch (error){
+        showSnackbar(getApiError(error).message, 'error');
     } finally {
         loading.value = false;
     }
@@ -125,14 +126,16 @@ function onSaveClick() {
 async function confirmSave() {
     dialogConfirm.value = false;
     dialogLoading.value = true;
+    saving.value = true;
     try {
         const permissions = collectGranted(tree.value);
         await userPermissionService.save(userId.value, permissions);
         showSnackbar('Permisos guardados correctamente.', 'success');
-    } catch {
-        showSnackbar('Ocurrió un error al guardar los permisos', 'error');
+    } catch (error){
+        showSnackbar(getApiError(error).message, 'error');
     } finally {
         dialogLoading.value = false;
+        saving.value = false;
     }
 }
 
@@ -143,25 +146,28 @@ onMounted(() => loadTree());
     <BaseBreadcrumb
         :title="page.title"
         :breadcrumbs="breadcrumbs"
+        class="elevation-1"
     />
 
     <v-row>
         <v-col cols="12">
-            <UiParentCard title="GESTIONAR PERMISOS DE USUARIO">
+            <UiParentCard 
+                title="Configurar permisos de Usuario"
+                icon="solar:user-circle-linear"
+                class="elevation-1">
                 <template v-slot:action>
                     <div class="d-flex gap-2">
                         <v-btn
                             variant="flat"
-                            color="light"
-                            class="border text-muted text-14"
-                            @click="router.push('/admin/usuarios')"
+                            size="small"                            
+                            rounded="sm"
+                            class="px-1 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border border-amber-200"
+                            @click="$router.go(-1)"
                         >
                             <Icon
-                                icon="solar:double-alt-arrow-left-outline"
-                                width="20"
-                                class="mr-1"
-                            />
-                            Atrás
+                                icon="solar:close-bold"
+                                width="18"
+                            />                            
                         </v-btn>
                     </div>
                 </template>
@@ -184,19 +190,18 @@ onMounted(() => loadTree());
                     >
                         <!-- Alerta con nombre del usuario -->
                         <v-alert
-                            border="start"
-                            variant="tonal"
                             color="primary"
                             class="mb-4"
                         >
                             <template v-slot:prepend>
                                 <Icon
-                                    icon="solar:user-circle-bold-duotone"
+                                    icon="solar:shield-user-bold-duotone"
                                     width="30"
+                                    class="text-white"
                                 />
                             </template>
                             <div
-                                class="h5 text-poppins font-weight-bold mb-1"
+                                class="h5 text-poppins font-weight-medium"
                             >
                                 {{ userName || '—' }}
                             </div>
@@ -209,8 +214,6 @@ onMounted(() => loadTree());
 
                         <!-- Advertencia -->
                         <v-alert
-                            border="start"
-                            variant="tonal"
                             color="info"
                             class="mb-4"
                         >
@@ -218,24 +221,24 @@ onMounted(() => loadTree());
                                 <Icon
                                     icon="solar:danger-triangle-bold-duotone"
                                     width="30"
+                                    class="text-white"
                                 />
                             </template>
                             <div
-                                class="h5 font-weight-bold mb-1 text-poppins"
+                                class="h5 font-weight-medium text-poppins"
                             >
                                 ADVERTENCIA
                             </div>
                             <div class="text-body text-justify">
-                                Los permisos asignados directamente
-                                asignados, complementan (no reemplazan) los
+                                Los permisos directamente asignados, complementan (no reemplazan) los
                                 permisos del rol del usuario.
                             </div>
                         </v-alert>
 
                         <!-- Leyenda -->
                         <v-card
-                            variant="outlined"
-                            class="pa-4"
+                            variant="tonal"
+                            class="pa-4"                            
                         >
                             <div
                                 class="text-14 font-weight-bold mb-3 text-poppins"
@@ -516,7 +519,8 @@ onMounted(() => loadTree());
                     </v-btn> -->
                     <v-btn
                         color="primary"
-                        variant="elevated"
+                        variant="flat"
+                        rounded="sm"
                         class="text-14"
                         :loading="saving"
                         @click="onSaveClick"
@@ -563,7 +567,7 @@ onMounted(() => loadTree());
                 <v-btn
                     class="text-14 px-4 me-2 mb-2"
                     rounded="sm"
-                    color="info"
+                    color="primary"
                     variant="flat"
                     :loading="saving"
                     @click="confirmSave"

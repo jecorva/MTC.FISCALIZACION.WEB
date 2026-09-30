@@ -10,8 +10,8 @@ import LogoIconSide from '@/layouts/full/logo/LogoIconSide.vue';
         <v-row class="h-100vh">
             <v-col
                 cols="12"
-                lg="5"
-                xl="4"
+                lg="4"
+                xl="3"
                 class="bg-surface auth"
             >
                 <div class="d-flex justify-center align-center h-100">
@@ -39,8 +39,8 @@ import LogoIconSide from '@/layouts/full/logo/LogoIconSide.vue';
             </v-col>
             <v-col
                 cols="12"
-                lg="7"
-                xl="8"
+                lg="8"
+                xl="9"
                 style="background: #bf0909"
                 class="d-lg-flex d-none align-center justify-center authentication position-relative"
             >

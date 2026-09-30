@@ -22,18 +22,18 @@ export const userService = {
         return data.data;
     },
 
-    update: async (id, xData) => {
+    update: async (id, user) => {
         const { data } = await httpClient.post(
             routesList.users.update(id),
-            { requestData: xData }
+            user
         );
         return data.data;
     },
 
-    changePassword: async (id, xData) => {
+    changePassword: async (id, password) => {
         const { data } = await httpClient.post(
             routesList.users.changePass(id),
-            { requestData: xData }
+            password
         );
         return data.data;
     },
@@ -47,9 +47,9 @@ export const userService = {
 };
 
 export const userPermissionService = {
-    getTree: async (userId: string) => {
+    getTree: async (id: string) => {
         const { data } = await httpClient.get(
-            routesList.userPermissions.getById(userId)
+            routesList.userPermissions.getById(id)
         );
         return data.data;
     },

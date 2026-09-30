@@ -30,5 +30,7 @@ export type ThemeTypes = {
         darkgray?: string;
         light?: string;
         muted?: string;
+        headerDialog?: string;
+        titleDialog?: string;
     };
 };

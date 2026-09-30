@@ -47,10 +47,10 @@ const handleItem = (item: any) => {
         open-on-click
     >
         <template v-slot:activator="{ props }">
+            <!-- class="custom-hover-primary" -->
             <v-btn
-                variant="text"
-                class="custom-hover-primary"
-                color="primary"
+                variant="text"                
+                color="bgRedMTC"
                 v-bind="props"
                 rounded="lg"
             >
@@ -85,6 +85,7 @@ const handleItem = (item: any) => {
             rounded="md"
             width="280"
             elevation="10"
+            color="surface"
         >
             <div class="pa-6">
                 <div class="d-flex align-center pb-6">
@@ -129,15 +130,15 @@ const handleItem = (item: any) => {
                     style="height: calc(100vh - 110px); max-height: 110px"
                 >
                     <v-list
-                        class="py-0 theme-list mt-3"
-                        lines="one"
+                        class="py-0 mt-3 bg-surface"
+                        lines="one"                        
                     >
                         <!-- :to="item.href" -->
                         <v-list-item
                             v-for="item in profileDD"
                             :key="item.title"
                             class="py-0 px-2 rounded-md custom-text-primary text-14"
-                            color="primary"
+                            color="light"
                             @click="handleItem(item)"
                         >
                             <div class="d-flex gap-3 align-center">
