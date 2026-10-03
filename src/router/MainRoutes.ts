@@ -37,17 +37,18 @@ const MainRoutes = {
         },
         // #endregion
 
-        ///|-- ROLES --|
+        // #region RolesPath
         {
             name: 'Roles',
-            path: 'admin/roles',
+            path: 'roles',
             component: () => import('@/www/setting/roles/Table.vue')
         },
         {
             name: 'RolesPermissions',
-            path: 'admin/roles/permisos/:id', // ← /dashboard/roles/permisos/5
+            path: 'roles/:Id/permisos', // ← /dashboard/roles/permisos/5
             component: () => import('@/www/setting/roles/Permissions.vue')
         },
+        // #endregion
         
         ///|-- DRIVERS --|
         {

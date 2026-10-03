@@ -9,8 +9,9 @@ import { useRouter } from 'vue-router';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import JAppSnackBar from '@/components/JAppSnackBar.vue';
 import RoleForm from './Form.vue';
+import { getApiError, ResponseCode } from '@/utils/apiError.js';
 
-// |<-- SNACKBAR --|
+// #region Snackbar
 type SnackbarType = 'success' | 'error' | 'warning' | 'info';
 const snackbar = ref(false);
 const snackbarMsg = ref('');
@@ -20,9 +21,9 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
     snackbarType.value = type;
     snackbar.value = true;
 };
-// |<-- SNACKBAR --|
+// #endregion
 
-// |<-- BREADCRUMB --|
+// #region Breadcrumb
 const page = ref({ title: 'Administrador | Roles' });
 const breadcrumbs = ref([
     {
@@ -31,7 +32,7 @@ const breadcrumbs = ref([
         href: '#'
     }
 ]);
-// |<-- BREADCRUMB --|
+// #endregion
 
 const { can } = usePermissions();
 const dialog = ref(false);
@@ -75,7 +76,7 @@ const itemRow = ref();
 const titleDelete = computed(() =>
     loadingDelete.value
         ? 'Eliminando...'
-        : '¿Estás seguro que deseas eliminar este rol?'
+        : '¿Desea eliminar este registro?'
 );
 
 const initialize = async () => {
@@ -96,8 +97,8 @@ const editItem = async (item) => {
     dlgCreateRef.value.setEditId(item.Id);
 };
 
-const permissionsSetting = (item) => {
-    router.push({ name: 'RolesPermissions', params: { id: item.Id } });
+const permissionsSetting = (item) => {    
+    router.push({ name: 'RolesPermissions', params: { Id: item.Id } });
 };
 
 const deleteItem = (item) => {
@@ -110,22 +111,10 @@ const deleteItemConfirm = async () => {
     try {
         await roleService.delete(itemRow.value.Id);
         showSnackbar('Rol eliminado exitosamente', 'success');
-        setTimeout(() => {}, 500);
-        initialize();
+        await initialize();
     } catch (error) {
-        const code = error?.response?.data?.code;
-        const messages: Record<string, string> = {
-            ROLE_ASSIGNED:
-                error?.response?.data?.message || 'Sin mensaje específico',
-            ROLE_HAS_PERMISSIONS:
-                error?.response?.data?.message || 'Sin mensaje específico',
-            ROLE_NOT_DELETED:
-                error?.response?.data?.message || 'Sin mensaje específico'
-        };
-        showSnackbar(
-            messages[code] || 'Error al eliminar el rol',
-            'error'
-        );
+        const { code, message } = getApiError(error);
+        showSnackbar(message, code === ResponseCode.InUse ? 'warning' : 'error');
     } finally {
         loadingDelete.value = false;
         dialogDelete.value = false;
@@ -143,26 +132,31 @@ onMounted(() => initialize());
     <BaseBreadcrumb
         :title="page.title"
         :breadcrumbs="breadcrumbs"
+        class="elevation-1"
     ></BaseBreadcrumb>
     <v-row>
         <v-col cols="12">
-            <UiParentCard title="TABLA DE ROLES">
+            <UiParentCard 
+                title="Gestión de Roles"
+                icon="solar:document-add-linear"
+                class="elevation-1">
                 <v-alert
                     variant="flat"
-                    class=""
-                    color="info"
+                    class="border"
+                    color="lightprimary"
                 >
                     <template v-slot:prepend>
                         <Icon
-                            icon="solar:info-circle-bold-duotone"
+                            icon="solar:info-circle-bold"
                             width="50"
+                            class="text-primary"
                         />
                     </template>
 
-                    <div class="h5 text-poppins font-weight-bold mb-0">
-                        ADVERTENCIA!
+                    <div class="h5 text-primary text-raleway font-weight-bold mb-0">
+                        INFORMACIÓN
                     </div>
-                    <div class="text-body text-justify">
+                    <div class="text-primary text-justify h5 font-weight-regular">
                         Debe de tener cuidado al asignar los permisos a los
                         roles, ya que esto puede afectar la correcta
                         asignación a los usuarios.
@@ -225,12 +219,13 @@ onMounted(() => initialize());
                                     can(permissionsList.roles.permission)
                                 "
                                 size="sm"
+                                rounded="sm"                                
                                 :color="
                                     item.IsActive === 1
-                                        ? 'primary'
+                                        ? 'secondary'
                                         : 'gray'
                                 "
-                                class="text-13 px-3"
+                                class="text-13 px-3 "
                                 @click="
                                     item.IsActive === 1
                                         ? permissionsSetting(item)
@@ -250,6 +245,7 @@ onMounted(() => initialize());
                                     item.IsActive === 1 ? 'info' : 'gray'
                                 "
                                 size="sm"
+                                rounded="sm"
                                 class="px-2 py-2"
                                 @click="
                                     item.IsActive === 1
@@ -269,6 +265,7 @@ onMounted(() => initialize());
                                 v-if="can(permissionsList.roles.delete)"
                                 color="error"
                                 size="sm"
+                                rounded="sm"
                                 class="px-2 py-1"
                                 variant="flat"
                                 @click="
@@ -318,17 +315,14 @@ onMounted(() => initialize());
     <!-- 2. Dialog eliminar rol -->
     <v-dialog
         v-model="dialogDelete"
-        :max-width="loadingDelete ? 250 : 400"
+        :max-width="loadingDelete ? 150 : 300"
         :persistent="loadingDelete"
     >
-        <v-card>
-            <v-card-title class="text-h6 py-3 border-bottom bg-light">
-                Confirmar
-            </v-card-title>
-            <v-card-text class="text-center py-2">
+        <v-card>            
+            <v-card-text class="text-center py-4">
                 <div>
                     <Icon
-                        class="text-error trash-animate"
+                        class="text-error"
                         icon="solar:trash-bin-minimalistic-bold-duotone"
                         width="50"
                         height="50"
@@ -351,7 +345,7 @@ onMounted(() => initialize());
                     :loading="loadingDelete"
                     @click="deleteItemConfirm"
                 >
-                    Eliminar
+                    Si, Eliminar
                 </v-btn>
             </v-card-actions>
         </v-card>

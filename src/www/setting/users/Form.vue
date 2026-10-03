@@ -335,7 +335,7 @@ onMounted(() => initialize());
                     <v-row>
                         <v-col
                             cols="12"
-                            class="pb-0"
+                            class="pb-0 pt-0"
                         >
                             <div
                                 class="d-flex justify-space-between align-center"

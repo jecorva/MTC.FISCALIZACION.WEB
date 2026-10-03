@@ -391,7 +391,10 @@ onMounted(() => initialize());
                 :disabled="ldgChange"
             >
                 <v-card-title
-                    class="pt-3 px-7 text-titleDialog bg-headerDialog font-weight-medium d-flex align-center gap-2 mb-0 jc-title"
+                    class="d-flex align-center gap-2 
+                    px-7 py-3 
+                    text-raleway font-weight-bold text-h6 mb-0 
+                    bg-lightprimary text-primary border-b border-b-primary"
                 >
                     <v-progress-circular
                         v-if="ldgChange"

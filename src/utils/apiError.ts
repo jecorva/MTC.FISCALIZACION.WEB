@@ -27,5 +27,7 @@ export const ResponseCode = {
     ServerError: '_ServerError_',
     DocumentNumberError: '_DocumentNumberError_',
     NameError: '_NameError_',
-    EmailError: '_EmailError_'
+    EmailError: '_EmailError_',
+    CodeError: '_CodeError_',
+    InUse: '_InUse_',
 } as const;

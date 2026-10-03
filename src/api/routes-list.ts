@@ -33,16 +33,16 @@ export const routesList = {
     }, 
 
     roles: {
-        getAll: '/role/list',
-        getById: (id) => `/role/get/${id}`,
-        create: '/role/create',
-        update: (id) => `/role/update/${id}`,
-        delete: (id) => `/role/delete/${id}`
+        getAll      : '/roles',
+        create      : '/roles',
+        getById     : (id: string) => `/roles/${id}`,
+        update      : (id: string) => `/roles/${id}`,
+        delete      : (id: string) => `/roles/${id}`
     },
 
     permissions: {
-        getById: (id) => `/permission/get/${id}/permissions`,
-        syncPermissions: (id) => `/permission/sync/${id}/permissions`
+        getById         : (id: string) => `/roles/${id}/permissions`,
+        syncPermissions : (id: string) => `/roles/${id}/sync`
     },       
 
     dependencies: {

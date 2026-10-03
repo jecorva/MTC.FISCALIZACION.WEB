@@ -73,7 +73,8 @@ async function loadTree() {
         const data = await userPermissionService.getTree(userId.value);
         userName.value = data.userName ?? '';
         tree.value = data.tree ?? [];
-        expanded.value = tree.value.map((n: any) => n.id);
+        // expanded.value = tree.value.map((n: any) => n.id); // Expandir todos los padres al cargar
+        expanded.value = [];
     } catch (error){
         showSnackbar(getApiError(error).message, 'error');
     } finally {
@@ -237,8 +238,7 @@ onMounted(() => loadTree());
 
                         <!-- Leyenda -->
                         <v-card
-                            variant="tonal"
-                            class="pa-4"                            
+                            class="pa-4 elevation-0 border-0"
                         >
                             <div
                                 class="text-14 font-weight-bold mb-3 text-poppins"

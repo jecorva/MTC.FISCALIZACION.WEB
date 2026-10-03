@@ -32,5 +32,6 @@ export type ThemeTypes = {
         muted?: string;
         headerDialog?: string;
         titleDialog?: string;
+        dark?: string;
     };
 };

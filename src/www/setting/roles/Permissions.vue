@@ -1,5 +1,5 @@
 <script setup lang="ts">
-///<-----------------------------| CODE BASIC |----------------------------->///
+// #region CodigoBase
 import { ref, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -7,8 +7,9 @@ import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import JAppSnackBar from '@/components/JAppSnackBar.vue';
 import { rolePermissionService } from '@/services/roleService';
+import { getApiError } from '@/utils/apiError';
 
-// |<-- SNACKBAR --|
+// #region Snackbar
 type SnackbarType = 'success' | 'error' | 'warning' | 'info';
 const snackbar = ref(false);
 const snackbarMsg = ref('');
@@ -18,21 +19,23 @@ const showSnackbar = (msg: string, type: SnackbarType) => {
     snackbarType.value = type;
     snackbar.value = true;
 };
+// #endregion
 
-// |<-- BREADCRUMB --|
+// #region Breadcrumb
 const page = ref({ title: 'Administrador | Roles | Permisos' });
 const breadcrumbs = ref([
-    { title: 'Roles', disabled: false, href: '/admin/roles' },
+    { title: 'Roles', disabled: false, href: '/roles' },
     { title: 'Permisos', disabled: true, href: '#' }
 ]);
+// #endregion
 
 const route = useRoute();
 const router = useRouter();
-///<-----------------------------| **** END CODE BASIC **** |----------------------------->///
 
-const roleId = route.params.id as string;
+// #endregion CodigoBase
 
-// ─── Etiquetas de acciones ───────────────────────────────────────────────────
+const roleId = route.params.Id as string;
+
 const actionLabels: Record<string, string> = {
     list: 'Listar',
     create: 'Crear',
@@ -53,7 +56,6 @@ function translateLabel(name: string): string {
     return name;
 }
 
-// ─── Estado ─────────────────────────────────────────────────────────────────
 const tree = ref<any[]>([]);
 const roleName = ref('');
 const expanded = ref<string[]>([]);
@@ -62,14 +64,14 @@ const saving = ref(false);
 const dialogConfirm = ref(false);
 const dialogLoading = ref(false);
 
-// ─── Cargar árbol ────────────────────────────────────────────────────────────
 async function loadTree() {
     loading.value = true;
     try {
         const data = await rolePermissionService.getTree(roleId);
         roleName.value = data.roleName ?? '';
         tree.value = data.tree ?? [];
-        expanded.value = tree.value.map((n: any) => n.id);
+        // expanded.value = tree.value.map((n: any) => n.id); // Expandir todos los nodos al cargar
+        expanded.value = [];
     } catch {
         showSnackbar('Error al cargar los permisos', 'error');
     } finally {
@@ -124,10 +126,11 @@ async function confirmSave() {
     dialogLoading.value = true;
     try {
         const permissionIds = collectAssigned(tree.value);
+        console.log
         await rolePermissionService.save(roleId, permissionIds);
         showSnackbar('Permisos guardados correctamente.', 'success');
-    } catch {
-        showSnackbar('Ocurrió un error al guardar los permisos', 'error');
+    } catch (error){
+        showSnackbar(getApiError(error).message, 'error');
     } finally {
         dialogLoading.value = false;
     }
@@ -144,20 +147,23 @@ onMounted(() => loadTree());
 
     <v-row>
         <v-col cols="12">
-            <UiParentCard title="GESTIONAR PERMISOS DE ROL">
+            <UiParentCard 
+                title="Gestión de permisos del rol"
+                icon="solar:document-add-linear"
+                class="elevation-1">
                 <template v-slot:action>
                     <div class="d-flex gap-2">
                         <v-btn
                             variant="flat"
-                            color="light"
-                            class="border text-muted text-14"
-                            @click="router.push('/admin/roles')"
+                            size="small"                            
+                            rounded="sm"
+                            class="px-1 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border border-amber-200"
+                            @click="$router.go(-1)"
                         >
                             <Icon
-                                icon="solar:double-alt-arrow-left-outline"
-                                width="20"
-                            />
-                            Atrás
+                                icon="solar:close-bold"
+                                width="18"
+                            />                            
                         </v-btn>
                     </div>
                 </template>
@@ -179,25 +185,23 @@ onMounted(() => loadTree());
                         md="5"
                     >
                         <!-- Alerta con nombre del rol -->
-                        <v-alert
-                            border="start"
-                            variant="tonal"
+                        <v-alert                            
                             color="primary"
                             class="mb-4"
                         >
                             <template v-slot:prepend>
                                 <Icon
-                                    icon="solar:shield-user-bold-duotone"
+                                    icon="solar:shield-user-bold"
                                     width="30"
-                                    class="text-primary"
+                                    class="text-white"
                                 />
                             </template>
                             <div
-                                class="h5 text-poppins font-weight-bold mb-1"
+                                class="h6 text-raleway font-weight-bold"
                             >
-                                Permisos [{{ roleName || '—' }}]
+                                {{ roleName || '—' }}
                             </div>
-                            <div class="text-body text-justify">
+                            <div class="text-body text-justify font-weight-regular">
                                 Desglose el árbol y seleccione los permisos
                                 que desea asignar a este Rol.
                             </div>
@@ -205,37 +209,34 @@ onMounted(() => loadTree());
 
                         <!-- Advertencia -->
                         <v-alert
-                            border="start"
-                            variant="flat"
-                            color="warning"
+                            color="info"
                             class="mb-4"
                         >
                             <template v-slot:prepend>
                                 <Icon
-                                    icon="solar:danger-triangle-bold-duotone"
+                                    icon="solar:danger-triangle-bold"
                                     width="30"
-                                    style="color: black"
+                                    class="text-white"
                                 />
                             </template>
                             <div
-                                class="h5 font-weight-bold mb-1 text-poppins"
+                                class="h6 font-weight-bold text-raleway"
                             >
                                 ADVERTENCIA
                             </div>
                             <div class="text-body text-justify">
-                                Tenga cuidado al asignar permisos a los
-                                roles, ya que esto afecta directamente a
+                                Tenga cuidado al asignar permisos, ya que esto afecta directamente a
                                 todos los usuarios que posean este rol.
                             </div>
                         </v-alert>
 
                         <!-- Leyenda -->
                         <v-card
-                            variant="outlined"
+                            variant="flat"
                             class="pa-4"
                         >
                             <div
-                                class="text-14 font-weight-bold mb-3 text-poppins"
+                                class="h6 font-weight-bold mb-3 text-raleway text-muted"
                             >
                                 LEYENDA
                             </div>
@@ -445,6 +446,7 @@ onMounted(() => loadTree());
                     </v-btn> -->
                     <v-btn
                         color="primary"
+                        rounded="sm"
                         variant="elevated"
                         class="text-14"
                         :loading="saving"
@@ -468,7 +470,14 @@ onMounted(() => loadTree());
         max-width="400"
     >
         <v-card>
-            <v-card-title class="text-h6 py-3 border-bottom bg-light">
+            <v-card-title 
+                class="d-flex align-center gap-2 px-7 py-3 text-raleway font-weight-bold text-h6 mb-0 bg-lightprimary text-primary border-b border-b-primary"
+            >
+                <Icon            
+                    icon="solar:question-circle-bold"
+                    width="22"
+                    height="22"
+                />
                 Confirmar
             </v-card-title>
             <v-card-text class="text-center py-4">
@@ -479,21 +488,21 @@ onMounted(() => loadTree());
                 />
                 <div>¿Estás seguro que deseas guardar los cambios?</div>
             </v-card-text>
-            <v-card-actions class="justify-end">
+            <v-card-actions class="justify-end py-3 px-6">
                 <v-btn
-                    class="text-14 mb-2"
+                    variant="tonal"
+                    color="muted"
                     rounded="sm"
-                    color="error"
-                    variant="text"
+                    class="text-14 px-3"
                     @click="dialogConfirm = false"
                 >
                     Cancelar
                 </v-btn>
                 <v-btn
-                    class="text-14 px-4 me-2 mb-2"
-                    rounded="sm"
-                    color="info"
                     variant="flat"
+                    color="primary"
+                    rounded="sm"
+                    class="text-14 px-3"
                     :loading="saving"
                     @click="confirmSave"
                 >

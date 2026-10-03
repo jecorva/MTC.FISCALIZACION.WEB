@@ -22,10 +22,10 @@ export const roleService = {
         return data.data;
     },
 
-    update: async (id, dataRole) => {
+    update: async (id, role) => {
         const { data } = await httpClient.post(
             routesList.roles.update(id),
-            { dataRole: dataRole }
+            role
         );
         return data.data;
     },
@@ -46,10 +46,10 @@ export const rolePermissionService = {
         return data.data;
     },
 
-    save: async (roleId: string, permissionIds: string[]) => {
+    save: async (roleId: string, permissionIds: string[]) => {        
         const { data } = await httpClient.post(
             routesList.permissions.syncPermissions(roleId),
-            { permissions: permissionIds }
+            { permissionIds }
         );
         return data.data;
     }

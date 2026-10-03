@@ -72,7 +72,8 @@ const AQUA_THEME: ThemeTypes = {
         light: '#EFF4FA',
         muted: '#526b7a',
         headerDialog: '#FFFFFF',
-        titleDialog: '#58595B'
+        titleDialog: '#58595B',
+        dark: '#111111',
     }
 };
 
